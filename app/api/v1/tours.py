@@ -1,0 +1,80 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import Optional
+from app.core.database import get_db
+from app.core.security import get_current_user
+from app.models.user import User
+from app.schemas.tour import (
+    TourResponse, TourDetailResponse, TourCreateRequest,
+    TourExpenseRequest, TourExpenseResponse, TourAverageResponse,
+    NavigationStepResponse,)
+from app.schemas.common import DataResponse
+from app.services.tour_service import (
+    get_tours, get_tour_by_id, create_tour,
+    save_tour_expense, get_region_averages,
+)
+from app.services.navigation_service import calculate_navigation
+
+router = APIRouter()
+
+
+@router.get("/", response_model=DataResponse[list[TourResponse]])
+def list_tours(
+    region_id: Optional[int] = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    """Список готовых тур-пакетов."""
+    tours, total = get_tours(db, region_id=region_id, is_template=True, page=page, page_size=page_size)
+    return DataResponse(
+        data=[TourResponse.model_validate(t) for t in tours],
+        message=f"Found {total} tours",
+    )
+
+
+@router.get("/{tour_id}", response_model=DataResponse[TourDetailResponse])
+def get_tour(tour_id: int, db: Session = Depends(get_db)):
+    """Детали тура с остановками."""
+    tour = get_tour_by_id(db, tour_id)
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+    return DataResponse(data=TourDetailResponse.model_validate(tour))
+
+
+@router.post("/", response_model=DataResponse[TourDetailResponse])
+def create_new_tour(
+    data: TourCreateRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Создать свой маршрут."""
+    tour = create_tour(db, user.id, data)
+    return DataResponse(data=TourDetailResponse.model_validate(tour), message="Tour created")
+
+@router.get("/{tour_id}/navigation", response_model=DataResponse[list[NavigationStepResponse]])
+def get_navigation(tour_id: int, db: Session = Depends(get_db)):
+    """Пошаговая навигация по туру."""
+    tour = get_tour_by_id(db, tour_id)
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+    steps = calculate_navigation(db, tour)
+    return DataResponse(data=steps, message=f"Navigation: {len(steps)} steps")
+
+
+@router.post("/expenses", response_model=DataResponse[TourExpenseResponse])
+def add_expense(
+    data: TourExpenseRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Записать траты после тура."""
+    expense = save_tour_expense(db, user.id, data.model_dump())
+    return DataResponse(data=TourExpenseResponse.model_validate(expense), message="Expense recorded")
+
+
+@router.get("/averages/regions", response_model=DataResponse[list[TourAverageResponse]])
+def region_averages(db: Session = Depends(get_db)):
+    """Средние траты туристов по областям."""
+    averages = get_region_averages(db)
+    return DataResponse(data=averages, message=f"Averages for {len(averages)} regions")

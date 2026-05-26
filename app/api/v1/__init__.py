@@ -1,0 +1,9 @@
+from .auth import router as auth_router
+from .regions import router as regions_router
+from .properties import router as properties_router
+from .tours import router as tours_router
+from .reviews import router as reviews_router
+from .chat import router as chat_router
+from .booking import router as booking_router
+from .ai_chat import router as ai_chat_router
+from .saved import router as saved_router
