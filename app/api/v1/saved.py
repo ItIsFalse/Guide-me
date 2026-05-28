@@ -45,7 +45,7 @@ def save_item(
     item = SavedItem(user_id=user.id, item_type=item_type, item_id=item_id)
     db.add(item)
     db.commit()
-    return DataResponse(message="Saved")
+    return DataResponse(data={"id": item.id, "item_type": item.item_type, "item_id": item.item_id}, message="Saved")
 
 
 @router.delete("/{saved_id}", response_model=DataResponse)

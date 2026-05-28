@@ -6,15 +6,19 @@ from app.models.user import User
 from app.models.booking import BookingRequest
 from app.schemas.booking import BookingRequestCreate, BookingRequestResponse
 from app.schemas.common import DataResponse
+from datetime import datetime
+from app.models.property import Property
+from app.core.security import get_current_owner
+from fastapi import HTTPException
 
 router = APIRouter()
 
 
 @router.post("/", response_model=DataResponse[BookingRequestResponse])
 def create_booking_request(
-    data: BookingRequestCreate,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        data: BookingRequestCreate,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     """Создать запрос на связь (придержать)."""
     booking = BookingRequest(
@@ -38,9 +42,51 @@ def create_booking_request(
 
 @router.get("/", response_model=DataResponse[list[BookingRequestResponse]])
 def get_my_requests(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     """Мои запросы."""
-    bookings = db.query(BookingRequest).filter(BookingRequest.user_id == user.id).order_by(BookingRequest.created_at.desc()).all()
+    bookings = db.query(BookingRequest).filter(BookingRequest.user_id == user.id).order_by(
+        BookingRequest.created_at.desc()).all()
     return DataResponse(data=[BookingRequestResponse.model_validate(b) for b in bookings])
+
+
+@router.get("/owner", response_model=DataResponse[list[BookingRequestResponse]])
+def get_owner_bookings(
+        user: User = Depends(get_current_owner),
+        db: Session = Depends(get_db),
+):
+    """Владелец видит заявки на свои объекты."""
+    bookings = (
+        db.query(BookingRequest)
+        .join(Property, BookingRequest.property_id == Property.id)
+        .filter(Property.owner_id == user.id)
+        .order_by(BookingRequest.created_at.desc())
+        .all()
+    )
+    return DataResponse(data=[BookingRequestResponse.model_validate(b) for b in bookings])
+
+
+@router.put("/{booking_id}/status", response_model=DataResponse[BookingRequestResponse])
+def update_booking_status(
+        booking_id: int,
+        status: str,
+        user: User = Depends(get_current_owner),
+        db: Session = Depends(get_db),
+):
+    """Сменить статус заявки."""
+    if status not in ("pending", "contacted", "confirmed", "cancelled", "rejected"):
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    booking = db.query(BookingRequest).filter(BookingRequest.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    property = db.query(Property).filter(Property.id == booking.property_id).first()
+    if property.owner_id != user.id:
+        raise HTTPException(status_code=403, detail="Not your property")
+
+    booking.status = status
+    booking.updated_at = datetime.utcnow()
+    db.commit()
+    return DataResponse(data=BookingRequestResponse.model_validate(booking), message=f"Status updated to {status}")

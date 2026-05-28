@@ -8,29 +8,31 @@ from fastapi import HTTPException
 
 def get_reviews(db: Session, property_id: int) -> tuple[list[Review], float, float]:
     """Все отзывы свойства + средние рейтинги."""
-    reviews = (
+    all_reviews = (
         db.query(Review)
         .filter(Review.property_id == property_id, Review.is_active == True)
         .order_by(Review.created_at.desc())
         .all()
     )
 
+    # Разделяем на родительские и ответы
+    parent_reviews = [r for r in all_reviews if r.parent_id is None]
+    replies = {r.parent_id: r for r in all_reviews if r.parent_id is not None}
+
+    # Прикрепляем ответы к родительским отзывам
+    for review in parent_reviews:
+        if review.id in replies:
+            review.replies = [replies[review.id]]
+
     # Средние рейтинги
-    resident_avg = db.query(func.avg(Review.rating)).filter(
-        Review.property_id == property_id,
-        Review.is_active == True,
-        Review.is_from_resident == True,
-        Review.parent_id.is_(None),
-    ).scalar()
+    ratings = [r.rating for r in parent_reviews if r.rating is not None]
+    resident_ratings = [r.rating for r in parent_reviews if r.is_from_resident and r.rating is not None]
+    guest_ratings = [r.rating for r in parent_reviews if not r.is_from_resident and r.rating is not None]
 
-    guest_avg = db.query(func.avg(Review.rating)).filter(
-        Review.property_id == property_id,
-        Review.is_active == True,
-        Review.is_from_resident == False,
-        Review.parent_id.is_(None),
-    ).scalar()
+    rating_uz = round(sum(resident_ratings) / len(resident_ratings), 1) if resident_ratings else 0.0
+    rating_guest = round(sum(guest_ratings) / len(guest_ratings), 1) if guest_ratings else 0.0
 
-    return reviews, round(resident_avg or 0, 1), round(guest_avg or 0, 1)
+    return parent_reviews, rating_uz, rating_guest
 
 
 def create_review(db: Session, user: User, data: dict) -> Review:

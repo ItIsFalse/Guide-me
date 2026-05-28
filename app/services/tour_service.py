@@ -45,7 +45,7 @@ def create_tour(db: Session, user_id: int, data: TourCreateRequest) -> Tour:
         description_en=data.description_en,
         duration_days=data.duration_days,
         transport_type=data.transport_type,
-        is_template=False,
+        is_template=True,
     )
     db.add(tour)
     db.flush()

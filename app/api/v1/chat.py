@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
@@ -11,9 +11,15 @@ router = APIRouter()
 
 
 @router.get("/{property_id}", response_model=DataResponse[list[ChatMessageResponse]])
-def get_messages(property_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Получить историю чата."""
-    messages = get_chat_messages(db, property_id, user)
+def get_messages(
+    property_id: int,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Получить историю чата с пагинацией."""
+    messages = get_chat_messages(db, property_id, user, limit, offset)
     return DataResponse(data=messages)
 
 

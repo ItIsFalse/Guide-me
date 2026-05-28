@@ -73,8 +73,8 @@ class Property(Base):
     total_reviews = Column(Integer, default=0)
 
     # модерация
-    is_active = Column(Boolean, default=False)
-    moderation_status = Column(String(20), default="pending")  # pending, approved, rejected
+    is_active = Column(Boolean, default=True)
+    moderation_status = Column(String(20), default="approved")  # pending, approved, rejected
     moderation_comment = Column(Text, nullable=True)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)

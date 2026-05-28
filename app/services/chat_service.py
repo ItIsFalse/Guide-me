@@ -4,8 +4,7 @@ from app.models.property import Property
 from app.models.user import User
 
 
-def get_chat_messages(db: Session, property_id: int, user: User) -> list[ChatMessage]:
-    """Сообщения чата: турист видит свои, владелец — все по своему объекту."""
+def get_chat_messages(db: Session, property_id: int, user: User, limit: int = 50, offset: int = 0) -> list[ChatMessage]:
     query = db.query(ChatMessage).filter(ChatMessage.property_id == property_id)
 
     if user.role == "owner":
@@ -13,12 +12,11 @@ def get_chat_messages(db: Session, property_id: int, user: User) -> list[ChatMes
             Property.id == property_id, Property.owner_id == user.id
         ).first()
         if not property:
-            # Не его объект — показываем только его сообщения
             query = query.filter(ChatMessage.sender_id == user.id)
     else:
         query = query.filter(ChatMessage.sender_id == user.id)
 
-    return query.order_by(ChatMessage.created_at.asc()).all()
+    return query.order_by(ChatMessage.created_at.desc()).offset(offset).limit(limit).all()
 
 
 def send_chat_message(db: Session, user: User, property_id: int, message: str) -> ChatMessage:
