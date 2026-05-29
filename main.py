@@ -22,6 +22,8 @@ import os
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    from app.core.seed_auto import auto_seed
+    auto_seed()
     print("Database initialized")
     yield
 
