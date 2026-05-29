@@ -8,3 +8,4 @@ from .booking import router as booking_router
 from .ai_chat import router as ai_chat_router
 from .saved import router as saved_router
 from .exchange import router as exchange_router
+from .navigation import router as navigation_router

@@ -14,6 +14,7 @@ from app.api.v1.booking import router as booking_router
 from app.api.v1.ai_chat import router as ai_chat_router
 from app.api.v1.saved import router as saved_router
 from app.api.v1.exchange import router as exchange_router
+from app.api.v1.navigation import router as navigation_router
 import os
 
 
@@ -53,6 +54,7 @@ app.include_router(booking_router, prefix="/api/v1/booking", tags=["booking"])
 app.include_router(ai_chat_router, prefix="/api/v1/ai", tags=["ai"])
 app.include_router(saved_router, prefix="/api/v1/saved", tags=["saved"])
 app.include_router(exchange_router, prefix="/api/v1/exchange", tags=["exchange"])
+app.include_router(navigation_router, prefix="/api/v1/navigation", tags=["navigation"])
 @app.get("/")
 def root():
     return {"app": settings.APP_NAME, "version": "1.0.0"}

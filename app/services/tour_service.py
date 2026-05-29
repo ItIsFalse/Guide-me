@@ -3,6 +3,7 @@ from sqlalchemy import func
 from app.models.tour import Tour, TourStop, UserTourExpense
 from app.models.region import Region
 from app.models.property import Property
+from app.models.user import User
 from app.schemas.tour import TourCreateRequest
 from fastapi import HTTPException
 
@@ -27,7 +28,10 @@ def get_tour_by_id(db: Session, tour_id: int) -> Tour | None:
     return db.query(Tour).filter(Tour.id == tour_id, Tour.is_active == True).first()
 
 
-def create_tour(db: Session, user_id: int, data: TourCreateRequest) -> Tour:
+def create_tour(db: Session, user: User, data: TourCreateRequest) -> Tour:
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can create tour packages")
+
     if data.property_ids:
         count = db.query(Property).filter(
             Property.id.in_(data.property_ids),
@@ -38,7 +42,7 @@ def create_tour(db: Session, user_id: int, data: TourCreateRequest) -> Tour:
 
     tour = Tour(
         region_id=data.region_id,
-        creator_id=user_id,
+        creator_id=user.id,
         name_en=data.name_en,
         name_uz=data.name_uz,
         name_ru=data.name_ru,

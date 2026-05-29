@@ -7,7 +7,7 @@ from app.models.user import User
 from app.schemas.tour import (
     TourResponse, TourDetailResponse, TourCreateRequest,
     TourExpenseRequest, TourExpenseResponse, TourAverageResponse,
-    NavigationStepResponse,)
+    NavigationStepResponse, )
 from app.schemas.common import DataResponse
 from app.services.tour_service import (
     get_tours, get_tour_by_id, create_tour,
@@ -20,10 +20,10 @@ router = APIRouter()
 
 @router.get("/", response_model=DataResponse[list[TourResponse]])
 def list_tours(
-    region_id: Optional[int] = Query(None),
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db),
+        region_id: Optional[int] = Query(None),
+        page: int = Query(1, ge=1),
+        page_size: int = Query(20, ge=1, le=100),
+        db: Session = Depends(get_db),
 ):
     """Список готовых тур-пакетов."""
     tours, total = get_tours(db, region_id=region_id, is_template=True, page=page, page_size=page_size)
@@ -44,13 +44,14 @@ def get_tour(tour_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=DataResponse[TourDetailResponse])
 def create_new_tour(
-    data: TourCreateRequest,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        data: TourCreateRequest,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     """Создать свой маршрут."""
-    tour = create_tour(db, user.id, data)
+    tour = create_tour(db, user, data)
     return DataResponse(data=TourDetailResponse.model_validate(tour), message="Tour created")
+
 
 @router.get("/{tour_id}/navigation", response_model=DataResponse[list[NavigationStepResponse]])
 def get_navigation(tour_id: int, db: Session = Depends(get_db)):
@@ -64,9 +65,9 @@ def get_navigation(tour_id: int, db: Session = Depends(get_db)):
 
 @router.post("/expenses", response_model=DataResponse[TourExpenseResponse])
 def add_expense(
-    data: TourExpenseRequest,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        data: TourExpenseRequest,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     """Записать траты после тура."""
     expense = save_tour_expense(db, user.id, data.model_dump())

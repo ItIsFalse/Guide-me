@@ -115,3 +115,21 @@ class NavigationStepResponse(BaseModel):
     duration_minutes: int  # время на точке
     travel_time_minutes: int  # время в пути от предыдущей
     distance_km: float  # расстояние от предыдущей
+
+
+class RouteRequest(BaseModel):
+    property_id: int
+    user_lat: float
+    user_lon: float
+    transport_type: str = "car"
+
+
+class RouteResponse(BaseModel):
+    from_lat: float
+    from_lon: float
+    to_name: str
+    to_lat: float
+    to_lon: float
+    distance_km: float
+    time_minutes: int
+    transport: str
