@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
+import time
 
-# Для SQLite нужен connect_args
+# Создаём engine ДО всего
 if "sqlite" in settings.DATABASE_URL:
     engine = create_engine(
         settings.DATABASE_URL,
@@ -30,5 +31,16 @@ def get_db():
 
 
 def init_db():
-    """Создать все таблицы (для разработки, потом заменим миграциями Alembic)."""
-    Base.metadata.create_all(bind=engine)
+    """Создать все таблицы с повторными попытками."""
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            Base.metadata.create_all(bind=engine)
+            print("Database initialized")
+            return
+        except Exception as e:
+            print(f"DB connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(5)
+            else:
+                raise e
