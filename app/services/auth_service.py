@@ -9,6 +9,13 @@ from app.core.security import (
 from app.models.user import User
 from app.schemas.auth import TokenResponse
 from datetime import datetime, timedelta
+import random
+
+AVATARS = [
+    "male_1", "male_2", "male_3", "male_4",
+    "female_1", "female_2", "female_3", "female_4",
+]
+
 
 # ==================== Google OAuth ====================
 
@@ -33,7 +40,8 @@ async def verify_google_token(id_token: str) -> dict:
         raise HTTPException(status_code=500, detail="Failed to verify Google token")
 
 
-def get_or_create_user(db: Session, email: str, google_id: str = None, apple_id: str = None, name: str = None, avatar_url: str = None) -> User:
+def get_or_create_user(db: Session, email: str, google_id: str = None, apple_id: str = None, name: str = None,
+                       avatar_url: str = None) -> User:
     """Находит пользователя по email или google_id/apple_id, либо создаёт нового."""
     user = db.query(User).filter(User.email == email).first()
 
@@ -117,6 +125,7 @@ def register_user(db: Session, email: str, password: str, name: str) -> User:
         verification_token=generate_token(),
         verification_token_expires=datetime.utcnow() + timedelta(hours=VERIFICATION_TOKEN_EXPIRE_HOURS),
     )
+    user.avatar_url = f"/static/photos/users/{random.choice(AVATARS)}.jpg"
     db.add(user)
     db.commit()
     db.refresh(user)

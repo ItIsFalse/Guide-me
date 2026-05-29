@@ -6,6 +6,7 @@ from app.models.user import User
 from app.schemas.review import ReviewCreateRequest, ReviewResponse, ReviewListResponse
 from app.schemas.common import DataResponse
 from app.services.review_service import get_reviews, create_review
+from app.models.review import Review
 
 router = APIRouter()
 
@@ -33,3 +34,17 @@ def add_review(
         raise HTTPException(status_code=400, detail="Rating must be 1-5")
     review = create_review(db, user, data.model_dump())
     return DataResponse(data=ReviewResponse.model_validate(review), message="Review added")
+
+@router.get("/my", response_model=DataResponse[list[ReviewResponse]])
+def my_reviews(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Все отзывы текущего пользователя."""
+    reviews = (
+        db.query(Review)
+        .filter(Review.user_id == user.id, Review.is_active == True)
+        .order_by(Review.created_at.desc())
+        .all()
+    )
+    return DataResponse(data=[ReviewResponse.model_validate(r) for r in reviews])

@@ -14,6 +14,9 @@ from app.services.tour_service import (
     save_tour_expense, get_region_averages,
 )
 from app.services.navigation_service import calculate_navigation
+from datetime import datetime
+from app.models.tour import TourStop
+from app.models.property import Property
 
 router = APIRouter()
 
@@ -79,3 +82,57 @@ def region_averages(db: Session = Depends(get_db)):
     """Средние траты туристов по областям."""
     averages = get_region_averages(db)
     return DataResponse(data=averages, message=f"Averages for {len(averages)} regions")
+
+
+@router.patch("/{tour_id}/transport", response_model=DataResponse[TourDetailResponse])
+def update_tour_transport(
+        tour_id: int,
+        transport_type: str,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Сменить транспорт в туре."""
+    tour = get_tour_by_id(db, tour_id)
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+
+    if transport_type not in ("walking", "public", "car", "bicycle"):
+        raise HTTPException(status_code=400, detail="Invalid transport type")
+
+    tour.transport_type = transport_type
+    tour.updated_at = datetime.utcnow()
+    db.commit()
+
+    return DataResponse(data=TourDetailResponse.model_validate(tour), message=f"Transport updated to {transport_type}")
+
+
+@router.patch("/{tour_id}/stops/{stop_id}", response_model=DataResponse[TourDetailResponse])
+def replace_tour_stop(
+        tour_id: int,
+        stop_id: int,
+        new_property_id: int,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Заменить место в туре на другое."""
+    # 1. Проверяем что тур существует
+    tour = get_tour_by_id(db, tour_id)
+    if not tour:
+        raise HTTPException(status_code=404, detail="Tour not found")
+
+    # 2. Проверяем что остановка в этом туре
+    stop = db.query(TourStop).filter(TourStop.id == stop_id, TourStop.tour_id == tour_id).first()
+    if not stop:
+        raise HTTPException(status_code=404, detail="Stop not found")
+
+    # 3. Проверяем что новое место существует
+    new_prop = db.query(Property).filter(Property.id == new_property_id, Property.is_active == True).first()
+    if not new_prop:
+        raise HTTPException(status_code=404, detail="New property not found")
+
+    # 4. Заменяем
+    stop.property_id = new_property_id
+    db.commit()
+    db.refresh(tour)
+
+    return DataResponse(data=TourDetailResponse.model_validate(tour), message=f"Stop replaced with {new_prop.name_en}")

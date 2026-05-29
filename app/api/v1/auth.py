@@ -6,7 +6,7 @@ from app.schemas.auth import (
     RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest,
     VerifyEmailRequest,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, UserUpdate
 from app.schemas.common import DataResponse
 from app.services.auth_service import (
     verify_google_token, get_or_create_user, generate_tokens, refresh_access_token,
@@ -14,6 +14,7 @@ from app.services.auth_service import (
 )
 from app.core.security import get_current_user
 from app.models.user import User
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -93,6 +94,28 @@ def refresh_token(request: RefreshRequest, db: Session = Depends(get_db)):
     tokens = refresh_access_token(db, request.refresh_token)
     return DataResponse(data=tokens, message="Token refreshed")
 
+@router.put("/me", response_model=DataResponse[UserResponse])
+def update_profile(
+    data: UserUpdate,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Обновить профиль текущего пользователя."""
+    if data.name is not None:
+        user.name = data.name
+    if data.preferred_currency is not None:
+        if data.preferred_currency not in ("UZS", "USD"):
+            raise HTTPException(status_code=400, detail="Currency must be UZS or USD")
+        user.preferred_currency = data.preferred_currency
+    if data.language is not None:
+        if data.language not in ("uz", "ru", "en"):
+            raise HTTPException(status_code=400, detail="Language must be uz, ru, or en")
+        user.language = data.language
+    if data.avatar_url is not None:
+        user.avatar_url = data.avatar_url
+    db.commit()
+    db.refresh(user)
+    return DataResponse(data=UserResponse.model_validate(user), message="Profile updated")
 
 @router.get("/me", response_model=DataResponse[UserResponse])
 def get_me(user: User = Depends(get_current_user)):
