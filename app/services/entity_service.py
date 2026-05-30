@@ -109,10 +109,13 @@ def extract_entities_ru(text: str) -> dict:
         "театр": "entertainment", "кино": "entertainment",
         "концерт": "entertainment", "фестиваль": "entertainment",
     }
+    print(f"Looking for type in: {text.lower()}")
     for key, val in type_map.items():
         if key in text.lower() and not result["type"]:
+            print(f"  FOUND type: {key} -> {val}")
             result["type"] = val
             break
+    print(f"  RESULT type: {result['type']}")
 
     tag_map = {
         "дешёвый": "cheap", "дешево": "cheap", "дешёво": "cheap",
@@ -359,11 +362,14 @@ def _fallback_extract(text: str) -> dict:
             break
 
     types = {
-        "отель": "hotel", "hotel": "hotel", "мехмонхона": "hotel",
-        "музей": "museum", "museum": "museum", "muzey": "museum",
-        "парк": "park", "park": "park", "ресторан": "restaurant",
-        "restaurant": "restaurant", "кафе": "restaurant", "cafe": "restaurant",
-        "памятник": "museum", "monument": "museum", "статуя": "museum",
+        "отель": "hotel", "отели": "hotel", "отелей": "hotel", "hotel": "hotel", "hotels": "hotel",
+        "мехмонхона": "hotel",
+        "музей": "museum", "музеи": "museum", "музеев": "museum", "museum": "museum", "museums": "museum",
+        "muzey": "museum",
+        "парк": "park", "парки": "park", "парков": "park", "park": "park", "parks": "park",
+        "ресторан": "restaurant", "рестораны": "restaurant", "ресторанов": "restaurant", "restaurant": "restaurant",
+        "restaurants": "restaurant", "кафе": "restaurant", "cafe": "restaurant",
+        "памятник": "museum", "памятники": "museum", "monument": "museum", "статуя": "museum", "статуи": "museum",
     }
     for key, val in types.items():
         if key in text_lower:

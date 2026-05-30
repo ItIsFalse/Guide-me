@@ -24,6 +24,7 @@ async def ai_chat(request: AIQueryRequest, db: Session = Depends(get_db)):
     # 2. Извлекаем сущности
     if lang == "ru":
         entities = extract_entities_ru(request.message)
+        print(f"ENTITIES: {entities}")
     elif lang == "uz":
         entities = extract_entities_uz(request.message)
     else:
