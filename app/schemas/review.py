@@ -23,6 +23,8 @@ class ReviewResponse(BaseModel):
     text_ru: Optional[str]
     is_from_resident: bool
     is_active: bool
+    user_name: Optional[str] = None      # ← новое
+    user_avatar: Optional[str] = None    # ← новое
     created_at: datetime
     replies: list["ReviewResponse"] = []
 

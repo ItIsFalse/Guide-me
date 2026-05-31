@@ -4,12 +4,15 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.saved import SavedItem
+from app.models.property import Property
+from app.models.tour import Tour
+from app.schemas.saved import SavedItemResponse
 from app.schemas.common import DataResponse
 
 router = APIRouter()
 
 
-@router.get("/", response_model=DataResponse)
+@router.get("/", response_model=DataResponse[list[SavedItemResponse]])
 def get_saved(
     item_type: str = None,
     user: User = Depends(get_current_user),
@@ -20,7 +23,51 @@ def get_saved(
     if item_type:
         query = query.filter(SavedItem.item_type == item_type)
     items = query.order_by(SavedItem.created_at.desc()).all()
-    return DataResponse(data=[{"id": i.id, "item_type": i.item_type, "item_id": i.item_id} for i in items])
+
+    result = []
+    for item in items:
+        si = SavedItemResponse(
+            id=item.id,
+            item_type=item.item_type,
+            item_id=item.item_id,
+            created_at=item.created_at,
+        )
+        if item.item_type == "property":
+            prop = db.query(Property).filter(Property.id == item.item_id).first()
+            if prop:
+                # Получаем минимальную цену
+                from app.models.property_unit import PropertyUnit
+                min_price = db.query(PropertyUnit.base_price).filter(
+                    PropertyUnit.property_id == prop.id, PropertyUnit.is_active == True
+                ).order_by(PropertyUnit.base_price.asc()).first()
+                price_text = f"{min_price[0]:,.0f} UZS" if min_price else "Free"
+
+                si.property = {
+                    "id": prop.id,
+                    "name_en": prop.name_en,
+                    "name_uz": prop.name_uz,
+                    "name_ru": prop.name_ru,
+                    "property_type": prop.property_type,
+                    "cover_url": prop.cover_url,
+                    "address": prop.address,
+                    "rating_guest": prop.rating_guest,
+                    "price_text": price_text,
+                }
+        elif item.item_type == "tour":
+            tour = db.query(Tour).filter(Tour.id == item.item_id).first()
+            if tour:
+                si.tour = {
+                    "id": tour.id,
+                    "name_en": tour.name_en,
+                    "name_uz": tour.name_uz,
+                    "name_ru": tour.name_ru,
+                    "cover_url": tour.cover_url,
+                    "duration_days": tour.duration_days,
+                    "transport_type": tour.transport_type,
+                }
+        result.append(si)
+
+    return DataResponse(data=result)
 
 
 @router.post("/", response_model=DataResponse)

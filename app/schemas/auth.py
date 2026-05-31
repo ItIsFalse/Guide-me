@@ -1,4 +1,5 @@
 from pydantic import BaseModel, field_validator
+from app.schemas.auth import ChangePasswordRequest
 from typing import Optional
 
 
@@ -106,3 +107,17 @@ class ResetPasswordRequest(BaseModel):
 
 class VerifyEmailRequest(BaseModel):
     token: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_must_be_strong(cls, v: str) -> str:
+        from app.core.security import validate_password_strength
+        is_valid, msg = validate_password_strength(v)
+        if not is_valid:
+            raise ValueError(msg)
+        return v

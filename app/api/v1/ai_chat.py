@@ -45,7 +45,7 @@ async def ai_chat(request: AIQueryRequest, db: Session = Depends(get_db)):
     # 6. Промпт и ответ
     prompt = build_rich_prompt(request.message, suggestions, weather, lang)
     try:
-        reply = await ask_groq(prompt)
+        reply = await ask_groq(prompt, request.image_base64)
     except Exception:
         reply = generate_simple_reply(request.message, suggestions, weather, lang)
 

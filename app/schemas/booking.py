@@ -3,6 +3,14 @@ from typing import Optional
 from datetime import date, datetime
 
 
+class BookingPropertyBrief(BaseModel):
+    id: int
+    name_en: str
+    cover_url: Optional[str]
+    address: Optional[str]
+    model_config = {"from_attributes": True}
+
+
 class BookingRequestCreate(BaseModel):
     unit_id: Optional[int] = None
     property_id: Optional[int] = None
@@ -24,6 +32,7 @@ class BookingRequestResponse(BaseModel):
     user_id: int
     unit_id: Optional[int]
     property_id: Optional[int]
+    property: Optional[BookingPropertyBrief] = None
     check_in_date: Optional[date]
     check_out_date: Optional[date]
     rooms: int

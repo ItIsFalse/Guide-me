@@ -9,6 +9,17 @@ from app.models.property_tag import PropertyTag
 from app.services.entity_service import detect_language, extract_entities_ru, extract_entities_en, extract_entities_uz
 
 
+def build_message_content(prompt: str, image_base64: str | None = None) -> list[dict]:
+    """Строит контент сообщения с опциональным изображением."""
+    content = [{"type": "text", "text": prompt}]
+    if image_base64:
+        content.append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}
+        })
+    return content
+
+
 def search_properties(db: Session, entities: dict, limit: int = 10) -> list[dict]:
     """Умный поиск мест с учётом тегов, типа, бюджета, города."""
     query = db.query(Property).filter(
@@ -160,7 +171,7 @@ Answer:"""
     return prompt
 
 
-async def ask_groq(prompt: str) -> str:
+async def ask_groq(prompt: str, image_base64: str | None = None) -> str:
     """Отправляет запрос к Groq API."""
     if not settings.GROQ_API_KEY:
         return "AI service is not configured. Please add GROQ_API_KEY."
@@ -175,7 +186,7 @@ async def ask_groq(prompt: str) -> str:
                 },
                 json={
                     "model": settings.GROQ_MODEL,
-                    "messages": [{"role": "user", "content": prompt}],
+                    "messages": [{"role": "user", "content": build_message_content(prompt, image_base64)}],
                     "temperature": 0.7,
                     "max_tokens": 500,
                 },
@@ -185,7 +196,6 @@ async def ask_groq(prompt: str) -> str:
             return data["choices"][0]["message"]["content"].strip()
     except Exception as e:
         return f"Sorry, AI is temporarily unavailable. Please try later. Error: {str(e)[:100]}"
-
 
 def generate_simple_reply(message: str, suggestions: list[dict], weather: dict | None, lang: str) -> str:
     """Fallback если Groq недоступен."""

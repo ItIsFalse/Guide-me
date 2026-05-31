@@ -13,3 +13,6 @@ from .photo import Photo
 from .exchange_rate import ExchangeRate
 from .saved import SavedItem
 from .property_tag import PropertyTag
+from .notification import Notification
+from .tour_booking import TourBooking
+from .promo_code import PromoCode

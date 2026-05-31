@@ -7,7 +7,7 @@ from app.schemas.review import ReviewCreateRequest, ReviewResponse, ReviewListRe
 from app.schemas.common import DataResponse
 from app.services.review_service import get_reviews, create_review
 from app.models.review import Review
-
+from app.models.user import User
 router = APIRouter()
 
 
@@ -15,9 +15,26 @@ router = APIRouter()
 def list_reviews(property_id: int, db: Session = Depends(get_db)):
     """Все отзывы объекта."""
     reviews, rating_uz, rating_guest = get_reviews(db, property_id)
+
+    result = []
+    for r in reviews:
+        rev = ReviewResponse.model_validate(r)
+        user = db.query(User).filter(User.id == r.user_id).first()
+        if user:
+            rev.user_name = user.name
+            rev.user_avatar = user.avatar_url
+        # И для ответов тоже
+        if r.replies:
+            for reply in r.replies:
+                reply_user = db.query(User).filter(User.id == reply.user_id).first()
+                if reply_user:
+                    reply.user_name = reply_user.name
+                    reply.user_avatar = reply_user.avatar_url
+        result.append(rev)
+
     return ReviewListResponse(
-        data=[ReviewResponse.model_validate(r) for r in reviews],
-        total=len(reviews),
+        data=result,
+        total=len(result),
         rating_uz=rating_uz,
         rating_guest=rating_guest,
     )

@@ -10,3 +10,6 @@ from .saved import router as saved_router
 from .exchange import router as exchange_router
 from .navigation import router as navigation_router
 from .users import router as users_router
+from .notifications import router as notifications_router
+from .tour_bookings import router as tour_bookings_router
+from .promo import router as promo_router

@@ -1,15 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime
 from app.core.database import get_db
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_current_owner
 from app.models.user import User
 from app.models.booking import BookingRequest
-from app.schemas.booking import BookingRequestCreate, BookingRequestResponse
-from app.schemas.common import DataResponse
-from datetime import datetime
 from app.models.property import Property
-from app.core.security import get_current_owner
-from fastapi import HTTPException
+from app.schemas.booking import BookingRequestCreate, BookingRequestResponse, BookingPropertyBrief
+from app.schemas.common import DataResponse
 
 router = APIRouter()
 
@@ -46,9 +44,21 @@ def get_my_requests(
         db: Session = Depends(get_db),
 ):
     """Мои запросы."""
-    bookings = db.query(BookingRequest).filter(BookingRequest.user_id == user.id).order_by(
-        BookingRequest.created_at.desc()).all()
-    return DataResponse(data=[BookingRequestResponse.model_validate(b) for b in bookings])
+    bookings = (
+        db.query(BookingRequest)
+        .filter(BookingRequest.user_id == user.id)
+        .order_by(BookingRequest.created_at.desc())
+        .all()
+    )
+    result = []
+    for b in bookings:
+        br = BookingRequestResponse.model_validate(b)
+        if b.property_id:
+            prop = db.query(Property).filter(Property.id == b.property_id).first()
+            if prop:
+                br.property = BookingPropertyBrief.model_validate(prop)
+        result.append(br)
+    return DataResponse(data=result)
 
 
 @router.get("/owner", response_model=DataResponse[list[BookingRequestResponse]])
@@ -64,7 +74,15 @@ def get_owner_bookings(
         .order_by(BookingRequest.created_at.desc())
         .all()
     )
-    return DataResponse(data=[BookingRequestResponse.model_validate(b) for b in bookings])
+    result = []
+    for b in bookings:
+        br = BookingRequestResponse.model_validate(b)
+        if b.property_id:
+            prop = db.query(Property).filter(Property.id == b.property_id).first()
+            if prop:
+                br.property = BookingPropertyBrief.model_validate(prop)
+        result.append(br)
+    return DataResponse(data=result)
 
 
 @router.put("/{booking_id}/status", response_model=DataResponse[BookingRequestResponse])
@@ -82,11 +100,16 @@ def update_booking_status(
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    property = db.query(Property).filter(Property.id == booking.property_id).first()
-    if property.owner_id != user.id:
+    prop = db.query(Property).filter(Property.id == booking.property_id).first()
+    if prop.owner_id != user.id:
         raise HTTPException(status_code=403, detail="Not your property")
 
     booking.status = status
     booking.updated_at = datetime.utcnow()
     db.commit()
-    return DataResponse(data=BookingRequestResponse.model_validate(booking), message=f"Status updated to {status}")
+
+    br = BookingRequestResponse.model_validate(booking)
+    if booking.property_id and prop:
+        br.property = BookingPropertyBrief.model_validate(prop)
+
+    return DataResponse(data=br, message=f"Status updated to {status}")

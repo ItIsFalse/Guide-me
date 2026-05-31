@@ -12,6 +12,7 @@ from app.models.property import Property
 from app.models.property_unit import PropertyUnit
 from app.models.property_tag import PropertyTag
 from app.models.tour import Tour, TourStop
+from app.models.promo_code import PromoCode
 
 REGIONS_DATA = [
     {"name_en": "Andijan", "name_uz": "Andijon", "name_ru": "Андижан", "lat": 40.78, "lon": 72.34,
@@ -259,7 +260,20 @@ def seed():
                         stop_order=i + 1, duration_minutes=90,
                     )
                     db.add(stop)
-
+        # Промокоды
+        promos = [
+            {"code": "GUIDEME", "discount_percent": 10, "description": "10% off your tour"},
+            {"code": "WELCOME", "discount_percent": 15, "description": "15% off for new users"},
+            {"code": "SUMMER", "discount_percent": 20, "description": "20% summer special", "max_uses": 50},
+        ]
+        for p in promos:
+            promo = PromoCode(
+                code=p["code"],
+                discount_percent=p["discount_percent"],
+                description=p["description"],
+                max_uses=p.get("max_uses", 100),
+            )
+            db.add(promo)
         db.commit()
         print(
             f"✅ Seeded: {len(region_map)} regions, {sum(len(v) for v in PROPERTIES_BY_REGION.values())} properties, {len(TOURS_DATA)} tours")

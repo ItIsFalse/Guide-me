@@ -24,3 +24,12 @@ class AIResponse(BaseModel):
     reply: str
     weather: Optional[dict] = None
     suggestions: list[AIPropertySuggestion] = []
+
+
+class AIQueryRequest(BaseModel):
+    message: str
+    budget: Optional[float] = None
+    currency: str = "UZS"
+    lat: Optional[float] = None
+    lon: Optional[float] = None
+    image_base64: Optional[str] = None

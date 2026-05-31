@@ -47,7 +47,7 @@ def fetch_and_save_rates(db: Session):
 
 @router.get("/", response_model=DataResponse)
 def get_latest_rates(db: Session = Depends(get_db)):
-    """Последние курсы валют (автообновление раз в день)."""
+    """Последние курсы валют в формате {USD: 12750.0, EUR: 13967.87}."""
     fetch_and_save_rates(db)
 
     subquery = (
@@ -69,15 +69,9 @@ def get_latest_rates(db: Session = Depends(get_db)):
         .all()
     )
 
-    result = [
-        {
-            "currency": r.currency_code,
-            "nominal": r.nominal,
-            "rate": r.rate,
-            "date": str(r.date),
-            "name_uz": r.name_uz,
-        }
-        for r in rates
-    ]
+    # Возвращаем как словарь {USD: 12750.0, EUR: 13967.87}
+    result = {r.currency_code: r.rate for r in rates}
+    # Добавляем UZS = 1.0 (базовая валюта)
+    result["UZS"] = 1.0
 
-    return DataResponse(data=result, message=f"Exchange rates for {len(result)} currencies")
+    return DataResponse(data=result, message="Latest exchange rates")

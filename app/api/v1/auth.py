@@ -18,6 +18,7 @@ from fastapi import HTTPException
 
 router = APIRouter()
 
+
 # ==================== OAuth ====================
 
 @router.post("/google", response_model=DataResponse[TokenResponse])
@@ -86,6 +87,36 @@ def reset_password_endpoint(request: ResetPasswordRequest, db: Session = Depends
     return DataResponse(message="Password reset successful")
 
 
+@router.post("/change-password", response_model=DataResponse)
+def change_password(
+        request: ChangePasswordRequest,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Сменить пароль (для авторизованных пользователей)."""
+    from app.core.security import verify_password, hash_password, validate_password_strength
+
+    # Проверяем что пользователь имеет пароль (не OAuth)
+    if not user.password_hash:
+        raise HTTPException(status_code=400,
+                            detail="Cannot change password for OAuth accounts. Use Google/Apple login.")
+
+    # Проверяем текущий пароль
+    if not verify_password(request.current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    # Проверяем сложность нового пароля
+    is_valid, msg = validate_password_strength(request.new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
+
+    # Меняем пароль
+    user.password_hash = hash_password(request.new_password)
+    db.commit()
+
+    return DataResponse(message="Password changed successfully")
+
+
 # ==================== Tokens & Profile ====================
 
 @router.post("/refresh", response_model=DataResponse[TokenResponse])
@@ -94,11 +125,12 @@ def refresh_token(request: RefreshRequest, db: Session = Depends(get_db)):
     tokens = refresh_access_token(db, request.refresh_token)
     return DataResponse(data=tokens, message="Token refreshed")
 
+
 @router.put("/me", response_model=DataResponse[UserResponse])
 def update_profile(
-    data: UserUpdate,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        data: UserUpdate,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     """Обновить профиль текущего пользователя."""
     if data.name is not None:
@@ -116,6 +148,7 @@ def update_profile(
     db.commit()
     db.refresh(user)
     return DataResponse(data=UserResponse.model_validate(user), message="Profile updated")
+
 
 @router.get("/me", response_model=DataResponse[UserResponse])
 def get_me(user: User = Depends(get_current_user)):
