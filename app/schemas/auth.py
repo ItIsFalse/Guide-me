@@ -1,5 +1,4 @@
 from pydantic import BaseModel, field_validator
-from app.schemas.auth import ChangePasswordRequest
 from typing import Optional
 
 
@@ -107,7 +106,6 @@ class ResetPasswordRequest(BaseModel):
 
 class VerifyEmailRequest(BaseModel):
     token: str
-
 
 class ChangePasswordRequest(BaseModel):
     current_password: str

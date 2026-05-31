@@ -4,7 +4,7 @@ from app.core.database import get_db
 from app.schemas.auth import (
     GoogleAuthRequest, AppleAuthRequest, RefreshRequest, TokenResponse,
     RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest,
-    VerifyEmailRequest,
+    VerifyEmailRequest, ChangePasswordRequest,
 )
 from app.schemas.user import UserResponse, UserUpdate
 from app.schemas.common import DataResponse
