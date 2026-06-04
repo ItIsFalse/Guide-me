@@ -117,6 +117,23 @@ def change_password(
     return DataResponse(message="Password changed successfully")
 
 
+@router.post("/set-password", response_model=DataResponse)
+def set_password(
+        new_password: str,
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Установить пароль для OAuth пользователя."""
+    from app.core.security import hash_password, validate_password_strength
+
+    is_valid, msg = validate_password_strength(new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
+
+    user.password_hash = hash_password(new_password)
+    db.commit()
+    return DataResponse(message="Password set successfully")
+
 # ==================== Tokens & Profile ====================
 
 @router.post("/refresh", response_model=DataResponse[TokenResponse])
