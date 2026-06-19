@@ -34,6 +34,12 @@ class Settings:
     # Weather
     OPENWEATHER_API_KEY: str = os.getenv("OPENWEATHER_API_KEY", "")
 
+    # SMTP
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_EMAIL: str = os.getenv("SMTP_EMAIL", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+
     # Currency
     DEFAULT_EXCHANGE_RATE_USD_TO_UZS: float = float(os.getenv("DEFAULT_EXCHANGE_RATE_USD_TO_UZS", "12700.00"))
 
@@ -43,3 +49,4 @@ class Settings:
 
 
 settings = Settings()
+

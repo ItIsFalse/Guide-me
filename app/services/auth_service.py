@@ -10,6 +10,8 @@ from app.models.user import User
 from app.schemas.auth import TokenResponse
 from datetime import datetime, timedelta
 import random
+import smtplib
+from email.mime.text import MIMEText
 
 AVATARS = [
     "male_1", "male_2", "male_3", "male_4",
@@ -185,20 +187,20 @@ def verify_email(db: Session, token: str) -> User:
 
 
 def forgot_password(db: Session, email: str) -> str:
-    """Отправляет токен для сброса пароля (в реальности — на email, сейчас возвращаем токен)."""
     user = db.query(User).filter(User.email == email, User.is_active == True).first()
 
-    if not user:
-        # Не говорим что пользователь не найден — безопасность
+    if not user or not user.password_hash:
         return "If the email exists, a reset link has been sent"
 
     user.reset_token = generate_token()
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=RESET_TOKEN_EXPIRE_HOURS)
     db.commit()
 
-    # В реальном проекте — отправка email
-    # Сейчас возвращаем токен для теста
-    return user.reset_token
+    # Отправляем email
+    if not send_reset_email(email, user.reset_token):
+        return user.reset_token  # Fallback: вернуть токен если email не ушёл
+
+    return "If the email exists, a reset link has been sent"
 
 
 def reset_password(db: Session, token: str, new_password: str) -> User:
@@ -218,3 +220,24 @@ def reset_password(db: Session, token: str, new_password: str) -> User:
     user.locked_until = None
     db.commit()
     return user
+
+
+def send_reset_email(email: str, token: str) -> bool:
+    """Отправляет ссылку для сброса пароля на email."""
+    reset_url = f"https://guide-me-8znn.onrender.com/reset-password?token={token}"
+
+    msg = MIMEText(
+        f"Hello!\n\nTo reset your password, please click the link below:\n{reset_url}\n\nIf you did not request this, ignore this email.\n\n— GuideMe Team")
+    msg["Subject"] = "GuideMe - Password Reset"
+    msg["From"] = settings.SMTP_EMAIL
+    msg["To"] = email
+
+    try:
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+            server.starttls()
+            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
