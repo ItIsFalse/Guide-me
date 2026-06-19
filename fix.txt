@@ -1,0 +1,3 @@
+1)При входе "Continue with google" выходит ошибка "google sign-in error: activity is cancelled by the user" 
+2)При входе "Continue with apple" cost 99$ в год аккаунт разработчика 
+3)Дальнеййшие настройки после фронт изменений

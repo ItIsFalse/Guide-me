@@ -72,12 +72,16 @@ def verify_email_endpoint(request: VerifyEmailRequest, db: Session = Depends(get
 
 @router.post("/forgot-password", response_model=DataResponse)
 def forgot_password_endpoint(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """Запрос на сброс пароля. Токен отправляется на email (пока возвращается в ответе)."""
+    user = db.query(User).filter(User.email == request.email, User.is_active == True).first()
+
+    if not user:
+        return DataResponse(message="If the email exists, a reset link has been sent")
+
+    if not user.password_hash:
+        return DataResponse(message="This account uses Google/Apple sign-in. Please use the social login button.")
+
     reset_token = forgot_password(db, request.email)
-    return DataResponse(
-        message="If the email exists, a reset link has been sent",
-        data={"reset_token": reset_token} if reset_token != "If the email exists, a reset link has been sent" else None
-    )
+    return DataResponse(message=f"If the email exists, a reset link has been sent. Token: {reset_token}")
 
 
 @router.post("/reset-password", response_model=DataResponse)
