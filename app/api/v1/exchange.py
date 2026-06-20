@@ -9,20 +9,20 @@ from app.schemas.common import DataResponse
 
 router = APIRouter()
 API_URL = "https://cbu.uz/ru/arkhiv-kursov-valyut/json/"
-TARGET_CURRENCIES = {"USD", "EUR", "RUB", "GBP", "CNY"}
+TARGET_CURRENCIES = {"USD", "EUR"}  # Только доллар и евро
 
 
 def fetch_and_save_rates(db: Session):
-    """Загружает курсы из API ЦБ если нет свежих данных."""
+    """Загружает курсы из API ЦБ если нет данных за сегодня."""
     today = date.today()
-    yesterday = today - timedelta(days=1)
 
+    # Проверяем есть ли курс за сегодня
     existing = db.query(ExchangeRate).filter(
-        ExchangeRate.date >= yesterday
+        ExchangeRate.date == today
     ).first()
 
     if existing:
-        return  # курс актуальный
+        return  # сегодня уже обновляли
 
     try:
         response = requests.get(API_URL, timeout=10)
@@ -40,9 +40,15 @@ def fetch_and_save_rates(db: Session):
                     name_uz=item.get("CcyNm_UZ", code),
                 )
                 db.add(rate)
+
+        # Удаляем записи старше 30 дней (после добавления новых)
+        oldest = today - timedelta(days=20)
+        db.query(ExchangeRate).filter(ExchangeRate.date < oldest).delete()
+
         db.commit()
     except Exception as e:
         print(f"Failed to fetch rates: {e}")
+        db.rollback()
 
 
 @router.get("/", response_model=DataResponse)
@@ -69,9 +75,8 @@ def get_latest_rates(db: Session = Depends(get_db)):
         .all()
     )
 
-    # Возвращаем как словарь {USD: 12750.0, EUR: 13967.87}
+    # Возвращаем как словарь
     result = {r.currency_code: r.rate for r in rates}
-    # Добавляем UZS = 1.0 (базовая валюта)
     result["UZS"] = 1.0
 
     return DataResponse(data=result, message="Latest exchange rates")
