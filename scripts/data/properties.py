@@ -29,8 +29,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": True,
-            "cover_url": "content_hotel_644f663f390669.53345684.jpg (640×480)",
-            "icon_url": "Hotel andijan common icon png: смотрите и скачивайте изображения — Яндекс Картинки",
+            "cover_url": "/static/photos/properties/placeholder_hotel.jpg",
+            "icon_url": "/static/photos/properties/placeholder_hotel.jpg",
             "tags": ["5star", "business", "gym", "hotel", "luxury", "pool", "spa"]
         },
         {
@@ -1793,8 +1793,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "4-5.jpg (1280×720)",
-            "icon_url": "03bb9701fb33c78ef5f30de891c31af3.jpg (640×640)",
+            "cover_url": "/static/photos/properties/placeholder_park.jpg",
+            "icon_url": "/static/photos/properties/placeholder_park.jpg",
             "tags": ["family", "fountains", "green", "outdoor", "park", "pet-friendly"]
         },
         {
@@ -1825,8 +1825,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": True,
             "has_takeaway": True,
             "chat_enabled": True,
-            "cover_url": "scale_1200 (900×1200)",
-            "icon_url": "Beshqozon osh markazi icon png: смотрите и скачивайте изображения — Яндекс Картинки",
+            "cover_url": "/static/photos/properties/placeholder_restaurant.jpg",
+            "icon_url": "/static/photos/properties/placeholder_restaurant.jpg",
             "tags": ["delivery", "dining", "food", "restaurant", "takeaway", "uzbek"]
         },
         {
@@ -1856,8 +1856,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": True,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "4-3.jpg (1200×675)",
-            "icon_url": "TCM-01.jpg (2250×2250)",
+            "cover_url": "/static/photos/properties/placeholder_shop.jpg",
+            "icon_url": "/static/photos/properties/placeholder_shop.jpg",
             "tags": ["mall", "retail", "shop", "shopping"]
         },
         {
@@ -1887,8 +1887,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": True,
-            "cover_url": "1280px-Navoi_Theater_-_Tashkent.jpg (1280×960)",
-            "icon_url": "Alisher_Navoi_Opera_and_Ballet_Theatre,_Tashkent.jpg (3792×2231)",
+            "cover_url": "/static/photos/properties/placeholder_shop.jpg",
+            "icon_url": "/static/photos/properties/placeholder_shop.jpg",
             "tags": ["entertainment", "leisure", "theatre"]
         },
     ],
@@ -1921,8 +1921,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": True,
-            "cover_url": "e40df1b4e4273f51c6714-1536x1024.jpg (1536×1024)",
-            "icon_url": "2ba0c1a21b23e852b81c2a63eb1f300c.jpg (640×640)",
+            "cover_url": "/static/photos/properties/placeholder_hotel.jpg",
+            "icon_url": "/static/photos/properties/placeholder_hotel.jpg",
             "tags": ["5star", "business", "hotel", "luxury"]
         },
         {
@@ -1951,8 +1951,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "X1PgjRMVxotwKeA0zW0FzM4rp4Gal_13.jpg (1280×960)",
-            "icon_url": "X1PgjRMVxotwKeA0zW0FzM4rp4Gal_13.jpg (1280×960)",
+            "cover_url": "/static/photos/properties/placeholder_museum.jpg",
+            "icon_url": "/static/photos/properties/placeholder_museum.jpg",
             "tags": ["culture", "exhibition", "history", "museum"]
         },
         {
@@ -1982,8 +1982,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "Al-Farghani_Statu.jpg (1920×1278)",
-            "icon_url": "Al-Farghani_Statu.jpg (1920×1278)",
+            "cover_url": "/static/photos/properties/placeholder_park.jpg",
+            "icon_url": "/static/photos/properties/placeholder_park.jpg",
             "tags": ["family", "fountains", "green", "outdoor", "park", "pet-friendly"]
         },
         {
@@ -2014,8 +2014,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": True,
             "has_takeaway": True,
             "chat_enabled": True,
-            "cover_url": "10_fargona_restaurant_cover.png",
-            "icon_url": "10_fargona_restaurant_cover.png",
+            "cover_url": "/static/photos/properties/placeholder_restaurant.jpg",
+            "icon_url": "/static/photos/properties/placeholder_restaurant.jpg",
             "tags": ["delivery", "dining", "food", "restaurant", "takeaway", "uzbek"]
         },
         {
@@ -2044,8 +2044,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": True,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "11_fargona_bazaar_cover.png",
-            "icon_url": "11_fargona_bazaar_icon.png",
+            "cover_url": "/static/photos/properties/placeholder_shop.jpg",
+            "icon_url": "/static/photos/properties/placeholder_shop.jpg",
             "tags": ["bazaar", "retail", "shop", "shopping"]
         },
         {
@@ -2075,8 +2075,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": True,
-            "cover_url": "12_fargona_attraction_cover.png",
-            "icon_url": "12_fargona_attraction_icon.png",
+            "cover_url": "/static/photos/properties/placeholder_entertainment.jpg",
+            "icon_url": "/static/photos/properties/placeholder_entertainment.jpg",
             "tags": ["amusement", "entertainment", "leisure"]
         },
     ],
