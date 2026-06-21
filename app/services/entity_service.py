@@ -9,6 +9,144 @@ except Exception:
     nlp_ru = None
     nlp_en = None
 
+# ==================== TYPE KEYWORD SETS ====================
+
+HOTEL_WORDS = {
+    "hotel", "motel", "hostel", "botel", "lodge", "lodging", "inn", "resort",
+    "bnb", "guesthouse", "pension", "backpacker", "accommodation", "accomodation",
+    "cabin", "chalet", "villa", "apartment", "suite", "penthouse",
+    "luxury", "boutique", "budget", "economy", "cheap", "expensive", "fancy", "chic",
+    "cozy", "romantic", "honeymoon", "getaway", "retreat", "sanctuary", "oasis",
+    "pool", "jacuzzi", "sauna", "spa", "wellness", "gym", "fitness",
+    "breakfast", "rooftop", "terrace", "balcony", "garden", "courtyard",
+    "overnight", "checkin", "checkout", "stay", "vacancy", "booking", "reservation",
+    "family", "couples", "petfriendly", "accessible", "wheelchair",
+    "business", "conference", "meeting", "airport", "transit", "layover",
+    "deluxe", "superior", "standard", "premium", "vip", "exclusive", "private",
+    "beachfront", "seaview", "oceanview", "mountainview", "cityview",
+    "downtown", "citycenter", "urban", "nature", "forest", "mountain", "lake",
+    "castle", "palace", "mansion", "estate", "ranch", "farm", "vineyard",
+}
+
+MUSEUM_WORDS = {
+    "museum", "gallery", "exhibition", "collection", "artifact", "antique",
+    "sculpture", "painting", "art", "fineart", "design", "photography",
+    "heritage", "culture", "history", "historical", "ancient", "modern", "contemporary",
+    "memorial", "monument", "statue", "obelisk", "temple",
+    "palace", "castle", "fortress", "ruins", "archaeology", "excavation",
+    "library", "archive", "institute", "center", "foundation",
+    "planetarium", "observatory", "aquarium", "zoo", "botanical",
+    "educational", "learning", "tour", "guided", "interactive", "hands-on",
+    "ticket", "entry", "admission", "free", "donation", "pass",
+    "family", "kids", "children", "school", "student",
+    "curator", "guide", "docent", "lecture", "workshop",
+    "indoor", "outdoor", "openair", "landmark", "attraction",
+    "unesco", "preservation", "conservation", "restoration",
+    "gothic", "renaissance", "baroque", "victorian", "impressionism",
+    "fossils", "dinosaurs", "gems", "minerals", "space", "aviation", "military",
+}
+
+PARK_WORDS = {
+    "park", "garden", "green", "nature", "reserve", "forest", "jungle", "woodland",
+    "meadow", "grassland", "lake", "pond", "river", "waterfall", "fountain",
+    "trail", "path", "walkway", "promenade", "boardwalk",
+    "picnic", "barbecue", "grill", "playground", "children", "kids", "family",
+    "bicycle", "biking", "cycling", "jogging", "running", "walking", "hiking", "trekking",
+    "camping", "fishing", "boating", "paddle", "kayak", "swimming", "beach",
+    "bench", "shade", "pavilion", "gazebo", "bridge",
+    "openair", "freshair", "relaxing", "peaceful", "quiet", "serene", "scenic",
+    "valley", "hill", "mountain", "riverside", "lakeside", "coastal",
+    "urban", "city", "downtown", "neighborhood",
+    "recreation", "sports", "tennis", "basketball", "soccer", "volleyball", "frisbee",
+    "yoga", "meditation", "event", "concert", "festival", "fair", "market",
+    "spring", "summer", "autumn", "winter",
+    "cherryblossom", "tulip", "rose", "japanesegarden", "englishgarden",
+    "national", "state", "regional", "community",
+    "dog", "petfriendly", "skatepark", "waterpark",
+    "sunrise", "sunset", "landmark", "attraction",
+    "beautiful", "stunning", "breathtaking", "hidden", "gem",
+}
+
+RESTAURANT_WORDS = {
+    "restaurant", "bistro", "cafe", "coffeeshop", "diner", "pub", "bar", "lounge",
+    "grill", "steakhouse", "seafood", "sushi", "pizza", "pasta",
+    "italian", "french", "spanish", "mexican", "indian", "chinese", "japanese",
+    "thai", "greek", "mediterranean", "american", "bbq", "barbecue", "buffet",
+    "fine", "casual", "fastfood", "streetfood", "foodtruck",
+    "family", "romantic", "cozy", "chic", "trendy", "stylish", "modern", "classic",
+    "traditional", "authentic", "local", "organic", "fresh", "homemade", "gourmet",
+    "breakfast", "brunch", "lunch", "dinner", "dessert", "bakery",
+    "wine", "beer", "cocktail", "coffee", "tea",
+    "soup", "salad", "bread", "rice", "noodles", "burger", "sandwich", "steak", "tacos",
+    "delivery", "takeaway", "takeout", "outdoor", "terrace", "patio",
+    "rooftop", "garden", "seaview", "cityview",
+    "booking", "reservation", "waitlist", "walkin",
+    "chef", "waiter", "service", "menu", "dish", "meal",
+    "vegetarian", "vegan", "glutenfree", "halal", "kosher",
+    "live", "music", "jazz", "piano", "candlelight",
+    "busy", "popular", "crowded", "lively", "quiet", "intimate",
+    "quality", "portions", "tasting", "happiest",
+}
+
+SHOP_WORDS = {
+    "shop", "store", "boutique", "outlet", "market", "mall", "plaza", "arcade",
+    "gallery", "studio", "workshop", "showroom",
+    "supermarket", "grocery", "convenience", "corner", "local",
+    "vintage", "secondhand", "thrift", "antique", "collectible",
+    "gift", "souvenir", "book", "records", "music", "instrument",
+    "art", "craft", "handmade", "artisan", "design",
+    "fashion", "clothing", "apparel", "shoes", "accessories",
+    "jewelry", "watches", "bags", "hats", "cosmetics", "beauty", "perfume",
+    "electronics", "gadgets", "phone", "computer", "games", "toys",
+    "home", "furniture", "decor", "lighting", "kitchen", "linens",
+    "hardware", "tools", "sports", "outdoor", "camping", "bike",
+    "department", "hypermarket", "farmersmarket", "fleamarket", "nightmarket",
+    "brand", "designer", "luxury", "premium", "affordable", "cheap", "discount", "sale",
+    "shopping", "browsing", "bargain", "deal", "promo", "coupon",
+    "cash", "card", "pay", "open", "daily", "weekend",
+    "hidden", "gem", "popular", "famous", "historic", "modern",
+}
+
+ENTERTAINMENT_WORDS = {
+    "entertainment", "fun", "amusement", "attraction", "activity", "recreation",
+    "leisure", "pleasure", "enjoyment", "excitement", "adventure", "thrill",
+    "show", "concert", "live", "music", "theatre", "cinema", "movie", "film",
+    "performance", "stage", "dance", "ballet", "opera", "circus", "magic", "comedy",
+    "festival", "fair", "carnival", "theme", "waterpark", "amusementpark",
+    "arcade", "gaming", "escape", "room", "quest", "puzzle", "mystery",
+    "bowling", "laser", "tag", "paintball", "go-kart", "karting", "minigolf",
+    "climbing", "skydiving", "racing", "roller", "skating", "ice", "rink",
+    "trampoline", "zipline", "ropes", "obstacle", "scavenger", "hunt",
+    "karaoke", "dance", "nightclub", "billiards", "darts", "boardgames",
+    "trivia", "quiz", "interactive", "immersive", "spectacular",
+    "family", "kids", "adults", "nightlife", "weekend",
+    "ticket", "entry", "pass", "vip", "package", "group", "private",
+    "party", "celebration", "birthday", "special", "seasonal",
+    "summer", "winter", "holiday", "halloween", "newyear",
+    "indoor", "outdoor", "openair", "venue", "arena", "stadium", "hall", "center",
+}
+
+# Маппинг слов на типы
+TYPE_WORD_MAP = {
+    "hotel": HOTEL_WORDS,
+    "museum": MUSEUM_WORDS,
+    "park": PARK_WORDS,
+    "restaurant": RESTAURANT_WORDS,
+    "shop": SHOP_WORDS,
+    "entertainment": ENTERTAINMENT_WORDS,
+}
+
+
+def _find_type_by_keywords(text: str) -> str | None:
+    """Ищет тип места по расширенным наборам ключевых слов."""
+    text_lower = text.lower()
+    for ptype, word_set in TYPE_WORD_MAP.items():
+        # Ищем целые слова (не подстроки)
+        for word in word_set:
+            if f" {word} " in f" {text_lower} " or text_lower.startswith(word + " ") or text_lower.endswith(" " + word) or text_lower == word:
+                return ptype
+    return None
+
 
 def detect_language(text: str) -> str:
     text_lower = text.lower()
@@ -16,7 +154,7 @@ def detect_language(text: str) -> str:
         "qayerda", "qanday", "qancha", "bor", "kerak", "maslahat",
         "mehmonxona", "muzey", "osh", "ovqat", "borish", "ko'rish",
         "tavsiya", "yaxshi", "arzon", "qimmat", "yaqin", "uzoq",
-        "oilaviy", "dam", "olish", "tarixiy", "joylar", "qayerda",
+        "oilaviy", "dam", "olish", "tarixiy", "joylar",
         "qachon", "nima", "qaysi", "qancha", "qanday", "qanaqa",
         "bormoq", "kelmoq", "ketmoq", "turmoq", "yotmoq",
         "so'm", "sum", "dollar", "yevro",
@@ -65,57 +203,60 @@ def extract_entities_ru(text: str) -> dict:
             result["city"] = val
             break
 
-    type_map = {
-        "отель": "hotel", "отеля": "hotel", "отеле": "hotel", "отели": "hotel",
-        "гостиница": "hotel", "гостиницы": "hotel", "гостинице": "hotel", "гостиниц": "hotel",
-        "мехмонхона": "hotel", "хостел": "hotel", "ночлег": "hotel",
-        "переночевать": "hotel", "остановиться": "hotel", "жильё": "hotel",
-        "жилье": "hotel", "ночевать": "hotel", "ночлежка": "hotel",
-        "забронировать": "hotel", "снять": "hotel", "арендовать": "hotel",
-        "музей": "museum", "музея": "museum", "музее": "museum", "музеи": "museum",
-        "выставка": "museum", "галерея": "museum",
-        "памятник": "museum", "памятника": "museum", "памятники": "museum",
-        "статуя": "museum", "статую": "museum", "статуи": "museum",
-        "монумент": "museum", "мемориал": "museum",
-        "мавзолей": "museum", "мавзолея": "museum",
-        "медресе": "museum", "мечеть": "museum", "мечети": "museum",
-        "крепость": "museum", "крепости": "museum",
-        "цитадель": "museum", "дворец": "museum", "дворца": "museum",
-        "собор": "museum", "храм": "museum", "храма": "museum",
-        "некрополь": "museum", "городище": "museum",
-        "обсерватория": "museum", "минарет": "museum",
-        "достопримечательность": "museum", "достопримечательности": "museum",
-        "парк": "park", "парка": "park", "парке": "park", "парки": "park",
-        "сквер": "park", "сад": "park", "сада": "park",
-        "озеро": "park", "озера": "park", "водохранилище": "park",
-        "заповедник": "park", "национальный парк": "park",
-        "пляж": "park", "каньон": "park", "ущелье": "park",
-        "пикник": "park", "прогулка": "park", "гулять": "park",
-        "ресторан": "restaurant", "ресторана": "restaurant",
-        "кафе": "restaurant", "кафешка": "restaurant",
-        "столовая": "restaurant", "чайхана": "restaurant",
-        "чайхона": "restaurant", "закусочная": "restaurant",
-        "фастфуд": "restaurant", "фаст фуд": "restaurant",
-        "поесть": "restaurant", "покушать": "restaurant", "кушать": "restaurant",
-        "еда": "restaurant", "обед": "restaurant", "ужин": "restaurant",
-        "завтрак": "restaurant", "перекус": "restaurant",
-        "плов": "restaurant", "шашлык": "restaurant", "самса": "restaurant",
-        "магазин": "shop", "базар": "shop", "рынок": "shop",
-        "сувенир": "shop", "сувениры": "shop",
-        "шоппинг": "shop", "покупки": "shop",
-        "развлечение": "entertainment", "развлечения": "entertainment",
-        "аттракцион": "entertainment", "аттракционы": "entertainment",
-        "аквапарк": "entertainment", "цирк": "entertainment",
-        "театр": "entertainment", "кино": "entertainment",
-        "концерт": "entertainment", "фестиваль": "entertainment",
-    }
-    print(f"Looking for type in: {text.lower()}")
-    for key, val in type_map.items():
-        if key in text.lower() and not result["type"]:
-            print(f"  FOUND type: {key} -> {val}")
-            result["type"] = val
-            break
-    print(f"  RESULT type: {result['type']}")
+    # Сначала ищем через расширенные наборы
+    ptype = _find_type_by_keywords(text)
+    if ptype:
+        result["type"] = ptype
+    else:
+        # Fallback на старый type_map
+        type_map = {
+            "отель": "hotel", "отеля": "hotel", "отеле": "hotel", "отели": "hotel",
+            "гостиница": "hotel", "гостиницы": "hotel", "гостинице": "hotel", "гостиниц": "hotel",
+            "мехмонхона": "hotel", "хостел": "hotel", "ночлег": "hotel",
+            "переночевать": "hotel", "остановиться": "hotel", "жильё": "hotel",
+            "жилье": "hotel", "ночевать": "hotel", "ночлежка": "hotel",
+            "забронировать": "hotel", "снять": "hotel", "арендовать": "hotel",
+            "музей": "museum", "музея": "museum", "музее": "museum", "музеи": "museum",
+            "выставка": "museum", "галерея": "museum",
+            "памятник": "museum", "памятника": "museum", "памятники": "museum",
+            "статуя": "museum", "статую": "museum", "статуи": "museum",
+            "монумент": "museum", "мемориал": "museum",
+            "мавзолей": "museum", "мавзолея": "museum",
+            "медресе": "museum", "мечеть": "museum", "мечети": "museum",
+            "крепость": "museum", "крепости": "museum",
+            "цитадель": "museum", "дворец": "museum", "дворца": "museum",
+            "собор": "museum", "храм": "museum", "храма": "museum",
+            "некрополь": "museum", "городище": "museum",
+            "обсерватория": "museum", "минарет": "museum",
+            "достопримечательность": "museum", "достопримечательности": "museum",
+            "парк": "park", "парка": "park", "парке": "park", "парки": "park",
+            "сквер": "park", "сад": "park", "сада": "park",
+            "озеро": "park", "озера": "park", "водохранилище": "park",
+            "заповедник": "park", "национальный парк": "park",
+            "пляж": "park", "каньон": "park", "ущелье": "park",
+            "пикник": "park", "прогулка": "park", "гулять": "park",
+            "ресторан": "restaurant", "ресторана": "restaurant",
+            "кафе": "restaurant", "кафешка": "restaurant",
+            "столовая": "restaurant", "чайхана": "restaurant",
+            "чайхона": "restaurant", "закусочная": "restaurant",
+            "фастфуд": "restaurant", "фаст фуд": "restaurant",
+            "поесть": "restaurant", "покушать": "restaurant", "кушать": "restaurant",
+            "еда": "restaurant", "обед": "restaurant", "ужин": "restaurant",
+            "завтрак": "restaurant", "перекус": "restaurant",
+            "плов": "restaurant", "шашлык": "restaurant", "самса": "restaurant",
+            "магазин": "shop", "базар": "shop", "рынок": "shop",
+            "сувенир": "shop", "сувениры": "shop",
+            "шоппинг": "shop", "покупки": "shop",
+            "развлечение": "entertainment", "развлечения": "entertainment",
+            "аттракцион": "entertainment", "аттракционы": "entertainment",
+            "аквапарк": "entertainment", "цирк": "entertainment",
+            "театр": "entertainment", "кино": "entertainment",
+            "концерт": "entertainment", "фестиваль": "entertainment",
+        }
+        for key, val in type_map.items():
+            if key in text.lower() and not result["type"]:
+                result["type"] = val
+                break
 
     tag_map = {
         "дешёвый": "cheap", "дешево": "cheap", "дешёво": "cheap",
@@ -202,35 +343,9 @@ def extract_entities_en(text: str) -> dict:
             result["city"] = val
             break
 
-    type_map = {
-        "hotel": "hotel", "hostel": "hotel", "inn": "hotel", "motel": "hotel",
-        "lodging": "hotel", "stay": "hotel", "accommodation": "hotel",
-        "room": "hotel", "overnight": "hotel", "book": "hotel", "reserve": "hotel",
-        "museum": "museum", "gallery": "museum", "exhibition": "museum",
-        "monument": "museum", "statue": "museum", "memorial": "museum",
-        "mausoleum": "museum", "madrasah": "museum", "mosque": "museum",
-        "fortress": "museum", "citadel": "museum", "palace": "museum",
-        "temple": "museum", "necropolis": "museum", "minaret": "museum",
-        "observatory": "museum", "sight": "museum", "landmark": "museum",
-        "attraction": "museum", "historical": "museum",
-        "park": "park", "garden": "park", "square": "park",
-        "lake": "park", "beach": "park", "canyon": "park",
-        "reserve": "park", "national park": "park",
-        "picnic": "park", "hiking": "park", "nature": "park",
-        "restaurant": "restaurant", "cafe": "restaurant", "dining": "restaurant",
-        "food": "restaurant", "eat": "restaurant", "cuisine": "restaurant",
-        "breakfast": "restaurant", "lunch": "restaurant", "dinner": "restaurant",
-        "pilaf": "restaurant", "plov": "restaurant", "kebab": "restaurant",
-        "shop": "shop", "market": "shop", "bazaar": "shop",
-        "souvenir": "shop", "shopping": "shop", "store": "shop",
-        "entertainment": "entertainment", "amusement": "entertainment",
-        "waterpark": "entertainment", "circus": "entertainment",
-        "theater": "entertainment", "cinema": "entertainment",
-    }
-    for key, val in type_map.items():
-        if key in text.lower() and not result["type"]:
-            result["type"] = val
-            break
+    ptype = _find_type_by_keywords(text)
+    if ptype:
+        result["type"] = ptype
 
     tag_map = {
         "cheap": "cheap", "affordable": "cheap", "budget": "cheap",
@@ -295,27 +410,31 @@ def _extract_keywords_uz(text: str) -> dict:
             result["city"] = val
             break
 
-    types = {
-        "mehmonxona": "hotel", "mehmonxonasi": "hotel",
-        "hostel": "hotel", "yotoqxona": "hotel", "tunash": "hotel",
-        "muzey": "museum", "muzeyi": "museum", "muzeylar": "museum",
-        "ko'rgazma": "museum", "galereya": "museum",
-        "haykal": "museum", "yodgorlik": "museum", "monument": "museum",
-        "maqbara": "museum", "madrasa": "museum", "masjid": "museum",
-        "qal'a": "museum", "saroy": "museum", "ibodatxona": "museum",
-        "park": "park", "bog'": "park", "bog'i": "park",
-        "ko'l": "park", "sohil": "park", "plyaj": "park",
-        "qo'riqxona": "park", "daralar": "park",
-        "restoran": "restaurant", "oshxona": "restaurant",
-        "kafe": "restaurant", "choyxona": "restaurant",
-        "ovqat": "restaurant", "yemoq": "restaurant",
-        "taom": "restaurant", "osh": "restaurant",
-        "do'kon": "shop", "bozor": "shop", "savdo": "shop",
-    }
-    for key, val in types.items():
-        if key in text_lower:
-            result["type"] = val
-            break
+    ptype = _find_type_by_keywords(text)
+    if ptype:
+        result["type"] = ptype
+    else:
+        types = {
+            "mehmonxona": "hotel", "mehmonxonasi": "hotel",
+            "hostel": "hotel", "yotoqxona": "hotel", "tunash": "hotel",
+            "muzey": "museum", "muzeyi": "museum", "muzeylar": "museum",
+            "ko'rgazma": "museum", "galereya": "museum",
+            "haykal": "museum", "yodgorlik": "museum", "monument": "museum",
+            "maqbara": "museum", "madrasa": "museum", "masjid": "museum",
+            "qal'a": "museum", "saroy": "museum", "ibodatxona": "museum",
+            "park": "park", "bog'": "park", "bog'i": "park",
+            "ko'l": "park", "sohil": "park", "plyaj": "park",
+            "qo'riqxona": "park", "daralar": "park",
+            "restoran": "restaurant", "oshxona": "restaurant",
+            "kafe": "restaurant", "choyxona": "restaurant",
+            "ovqat": "restaurant", "yemoq": "restaurant",
+            "taom": "restaurant", "osh": "restaurant",
+            "do'kon": "shop", "bozor": "shop", "savdo": "shop",
+        }
+        for key, val in types.items():
+            if key in text_lower:
+                result["type"] = val
+                break
 
     tags_map = {
         "arzon": "cheap", "arzonroq": "cheap", "hamyonbop": "cheap",
@@ -361,19 +480,24 @@ def _fallback_extract(text: str) -> dict:
             result["city"] = val
             break
 
-    types = {
-        "отель": "hotel", "отели": "hotel", "отелей": "hotel", "hotel": "hotel", "hotels": "hotel",
-        "мехмонхона": "hotel",
-        "музей": "museum", "музеи": "museum", "музеев": "museum", "museum": "museum", "museums": "museum",
-        "muzey": "museum",
-        "парк": "park", "парки": "park", "парков": "park", "park": "park", "parks": "park",
-        "ресторан": "restaurant", "рестораны": "restaurant", "ресторанов": "restaurant", "restaurant": "restaurant",
-        "restaurants": "restaurant", "кафе": "restaurant", "cafe": "restaurant",
-        "памятник": "museum", "памятники": "museum", "monument": "museum", "статуя": "museum", "статуи": "museum",
-    }
-    for key, val in types.items():
-        if key in text_lower:
-            result["type"] = val
-            break
+    # Сначала расширенный поиск
+    ptype = _find_type_by_keywords(text)
+    if ptype:
+        result["type"] = ptype
+    else:
+        types = {
+            "отель": "hotel", "отели": "hotel", "отелей": "hotel", "hotel": "hotel", "hotels": "hotel",
+            "мехмонхона": "hotel",
+            "музей": "museum", "музеи": "museum", "музеев": "museum", "museum": "museum", "museums": "museum",
+            "muzey": "museum",
+            "парк": "park", "парки": "park", "парков": "park", "park": "park", "parks": "park",
+            "ресторан": "restaurant", "рестораны": "restaurant", "ресторанов": "restaurant", "restaurant": "restaurant",
+            "restaurants": "restaurant", "кафе": "restaurant", "cafe": "restaurant",
+            "памятник": "museum", "памятники": "museum", "monument": "museum", "статуя": "museum", "статуи": "museum",
+        }
+        for key, val in types.items():
+            if key in text_lower:
+                result["type"] = val
+                break
 
     return result

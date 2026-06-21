@@ -5,9 +5,10 @@ from app.core.database import get_db
 from app.schemas.property import PropertyResponse, PropertyDetailResponse, PropertyListResponse
 from app.services.property_service import get_properties, get_property_by_id, get_property_units
 from app.models.property import Property
-
+from app.models.property_hotel import PropertyHotel
+from app.schemas.property_hotel import PropertyHotelResponse
+from app.schemas.common import DataResponse
 router = APIRouter()
-
 
 @router.get("/", response_model=PropertyListResponse)
 def list_properties(
@@ -82,3 +83,12 @@ def nearby_properties(
     result = [PropertyResponse.model_validate(p) for p, d in nearby[:5]]
 
     return PropertyListResponse(data=result, total=len(result))
+
+@router.get("/{property_id}/hotels", response_model=DataResponse[list[PropertyHotelResponse]])
+def get_property_hotels(property_id: int, db: Session = Depends(get_db)):
+    """Список номеров/коттеджей отеля."""
+    hotels = db.query(PropertyHotel).filter(
+        PropertyHotel.property_id == property_id,
+        PropertyHotel.is_active == True
+    ).order_by(PropertyHotel.base_price.asc()).all()
+    return DataResponse(data=[PropertyHotelResponse.model_validate(h) for h in hotels])

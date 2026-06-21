@@ -17,6 +17,8 @@ from app.services.navigation_service import calculate_navigation
 from datetime import datetime
 from app.models.tour import TourStop
 from app.models.property import Property
+from app.schemas.tour import TourStopPropertyBrief
+from app.models.property_unit import PropertyUnit
 
 router = APIRouter()
 
@@ -38,11 +40,40 @@ def list_tours(
 
 @router.get("/{tour_id}", response_model=DataResponse[TourDetailResponse])
 def get_tour(tour_id: int, db: Session = Depends(get_db)):
-    """Детали тура с остановками."""
+    """Детали тура с остановками и информацией о местах."""
     tour = get_tour_by_id(db, tour_id)
     if not tour:
         raise HTTPException(status_code=404, detail="Tour not found")
-    return DataResponse(data=TourDetailResponse.model_validate(tour))
+
+    result = TourDetailResponse.model_validate(tour)
+
+    # Добавляем property в каждый stop
+    for stop in result.stops:
+        prop = db.query(Property).filter(Property.id == stop.property_id).first()
+        if prop:
+            # Считаем минимальную цену
+            min_price = db.query(PropertyUnit.base_price).filter(
+                PropertyUnit.property_id == prop.id,
+                PropertyUnit.is_active == True
+            ).order_by(PropertyUnit.base_price.asc()).first()
+
+            price_text = f"{min_price[0]:,.0f} UZS" if min_price else "Free"
+
+            stop.property = TourStopPropertyBrief(
+                id=prop.id,
+                name_en=prop.name_en,
+                name_uz=prop.name_uz,
+                name_ru=prop.name_ru,
+                property_type=prop.property_type,
+                cover_url=prop.cover_url,
+                rating_guest=prop.rating_guest,
+                description_en=prop.description_en,
+                price_text=price_text,
+                lat=prop.lat,
+                lon=prop.lon,
+            )
+
+    return DataResponse(data=result)
 
 
 @router.post("/", response_model=DataResponse[TourDetailResponse])

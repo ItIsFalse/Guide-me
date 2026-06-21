@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from .property_unit import PropertyUnitResponse
+from .property_hotel import PropertyHotelResponse
 
 
 class PropertyResponse(BaseModel):
@@ -49,6 +50,7 @@ class PropertyResponse(BaseModel):
 
 class PropertyDetailResponse(PropertyResponse):
     units: list[PropertyUnitResponse] = []
+    hotels: list[PropertyHotelResponse] = []
 
 
 class PropertyListResponse(BaseModel):

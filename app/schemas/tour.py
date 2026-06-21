@@ -3,6 +3,22 @@ from typing import Optional
 from datetime import datetime, date
 
 
+class TourStopPropertyBrief(BaseModel):
+    id: int
+    name_en: str
+    name_uz: Optional[str] = None
+    name_ru: Optional[str] = None
+    property_type: str
+    cover_url: Optional[str] = None
+    rating_guest: Optional[float] = None
+    description_en: Optional[str] = None
+    price_text: Optional[str] = None
+    lat: Optional[float] = None
+    lon: Optional[float] = None
+
+    model_config = {"from_attributes": True}
+
+
 class TourStopResponse(BaseModel):
     id: int
     property_id: int
@@ -13,6 +29,7 @@ class TourStopResponse(BaseModel):
     note_en: Optional[str]
     note_uz: Optional[str]
     note_ru: Optional[str]
+    property: Optional[TourStopPropertyBrief] = None
 
     model_config = {"from_attributes": True}
 

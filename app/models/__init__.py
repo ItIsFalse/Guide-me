@@ -16,3 +16,4 @@ from .property_tag import PropertyTag
 from .notification import Notification
 from .tour_booking import TourBooking
 from .promo_code import PromoCode
+from .property_hotel import PropertyHotel
