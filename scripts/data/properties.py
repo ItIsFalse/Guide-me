@@ -1731,8 +1731,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": True,
-            "cover_url": "TASRT-P0098-Pavilion-Bar-Terrace-Ballroom-View.16x9.jpg (1280×720)",
-            "icon_url": "d1ffc0050ea6417fc2a8d956dfedb516.jpg (736×213)",
+            "cover_url": "/static/photos/properties/placeholder_hotel.jpg",
+            "icon_url": "/static/photos/properties/placeholder_hotel.jpg",
             "tags": ["5star", "business", "hotel", "luxury"]
         },
         {
@@ -1763,8 +1763,8 @@ PROPERTIES_BY_REGION = {
             "has_delivery": False,
             "has_takeaway": False,
             "chat_enabled": False,
-            "cover_url": "Ташкент._Музей_истории_Тимуридов_02.jpg (4896×3672)",
-            "icon_url": "flat-cartoon-amir-timur-museum-260nw-495795022.jpg (260×280)",
+            "cover_url": "/static/photos/properties/placeholder_museum.jpg",
+            "icon_url": "/static/photos/properties/placeholder_museum.jpg",
             "tags": ["culture", "exhibition", "history", "museum"]
         },
         {
@@ -2262,6 +2262,7 @@ PROPERTIES_BY_REGION = {
             "has_24h_front_desk": False,
             "pet_friendly": True,
             "has_delivery": False,
+            "has_takeaway": False,
             "has_takeaway": False,
             "chat_enabled": True,
             "cover_url": "https://placehold.co/1280x720/c2185b/ffffff/png?text=CosmoPark",
