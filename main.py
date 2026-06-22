@@ -19,6 +19,7 @@ from app.api.v1.users import router as users_router
 from app.api.v1.notifications import router as notifications_router
 from app.api.v1.tour_bookings import router as tour_bookings_router
 from app.api.v1.promo import router as promo_router
+from app.api.v1.photos import router as photos_router
 import os
 
 
@@ -65,6 +66,7 @@ app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
 app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["notifications"])
 app.include_router(tour_bookings_router, prefix="/api/v1", tags=["tour bookings"])
 app.include_router(promo_router, prefix="/api/v1/promo", tags=["promo"])
+app.include_router(photos_router, prefix="/api/v1/photos", tags=["photos"])
 @app.get("/")
 def root():
     return {"app": settings.APP_NAME, "version": "1.0.0"}

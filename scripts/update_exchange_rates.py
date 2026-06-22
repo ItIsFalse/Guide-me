@@ -14,7 +14,7 @@ from app.models.exchange_rate import ExchangeRate
 API_URL = "https://cbu.uz/ru/arkhiv-kursov-valyut/json/"
 
 # Какие валюты сохраняем
-TARGET_CURRENCIES = {"USD", "EUR", "RUB", "GBP", "CNY"}
+TARGET_CURRENCIES = {"USD", "EUR", "RUB"}
 
 
 def update_rates():

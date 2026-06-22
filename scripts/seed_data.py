@@ -1,4 +1,5 @@
 import sys
+
 sys.path.insert(0, ".")
 
 from app.core.database import SessionLocal, init_db
@@ -22,6 +23,7 @@ from app.models.exchange_rate import ExchangeRate
 from scripts.data.regions import REGIONS_DATA
 from scripts.data.properties import PROPERTIES_BY_REGION
 from scripts.data.tours import TOURS_DATA
+from scripts.data.photo_place_hotels import PHOTO_PLACE_DATA
 
 import json
 import random
@@ -52,13 +54,19 @@ def seed():
         db.query(Region).delete()
         db.commit()
 
-        # Регионы
+        print("🗑️ Database cleared")
+
+        # ==================== РЕГИОНЫ ====================
         region_map = {}
         for r_data in REGIONS_DATA:
             region = Region(
-                name_en=r_data["name_en"], name_uz=r_data["name_uz"], name_ru=r_data["name_ru"],
-                lat=r_data["lat"], lon=r_data["lon"],
-                best_season=r_data["best_season"], description=r_data["description"],
+                name_en=r_data["name_en"],
+                name_uz=r_data["name_uz"],
+                name_ru=r_data["name_ru"],
+                lat=r_data["lat"],
+                lon=r_data["lon"],
+                best_season=r_data["best_season"],
+                description=r_data["description"],
                 is_active=True,
                 icon_url=r_data.get("icon_url", ""),
                 cover_url=r_data.get("cover_url", ""),
@@ -66,8 +74,10 @@ def seed():
             db.add(region)
             db.flush()
             region_map[r_data["name_en"]] = region
+            print(f"✅ Region: {r_data['name_en']}")
 
-        # Свойства
+        # ==================== СВОЙСТВА (ОТЕЛИ, МУЗЕИ, ПАРКИ...) ====================
+        property_count = 0
         for region_name, properties in PROPERTIES_BY_REGION.items():
             region = region_map[region_name]
             for p_data in properties:
@@ -83,7 +93,8 @@ def seed():
                     description_en=p_data.get("desc_en", ""),
                     description_uz=p_data.get("desc_uz", ""),
                     description_ru=p_data.get("desc_ru", ""),
-                    lat=lat, lon=lon,
+                    lat=lat,
+                    lon=lon,
                     website=p_data.get("website"),
                     phone=p_data.get("phone"),
                     address=p_data.get("address"),
@@ -114,6 +125,7 @@ def seed():
                 )
                 db.add(prop)
                 db.flush()
+                property_count += 1
 
                 # Теги
                 for tag in p_data.get("tags", []):
@@ -158,7 +170,37 @@ def seed():
                         max_guests=1,
                     ))
 
-        # Тур-пакеты
+        print(f"✅ Properties: {property_count}")
+
+        # ==================== ФОТО ДЛЯ ОТЕЛЕЙ ====================
+        photo_count = 0
+        for photo_data in PHOTO_PLACE_DATA:
+            # Проверяем, существует ли уже такое фото
+            existing = db.query(Photo).filter(
+                Photo.entity_type == photo_data["entity_type"],
+                Photo.entity_id == photo_data["entity_id"],
+                Photo.photo_url == photo_data["photo_url"]
+            ).first()
+
+            if not existing:
+                photo = Photo(
+                    entity_type=photo_data["entity_type"],
+                    entity_id=photo_data["entity_id"],
+                    photo_url=photo_data["photo_url"],
+                    sort_order=photo_data.get("sort_order", 0),
+                    property_id=photo_data["entity_id"] if photo_data["entity_type"] == "property" else None,
+                )
+                db.add(photo)
+                photo_count += 1
+                print(
+                    f"📸 Added photo for {photo_data['entity_type']} id={photo_data['entity_id']} → {photo_data['photo_url']}")
+            else:
+                print(f"⏭️ Photo already exists: {photo_data['photo_url']}")
+
+        print(f"✅ Photos: {photo_count}")
+
+        # ==================== ТУРЫ ====================
+        tour_count = 0
         for t_data in TOURS_DATA:
             tour_region = t_data.get("region", "Tashkent")
             tour = Tour(
@@ -182,6 +224,7 @@ def seed():
             )
             db.add(tour)
             db.flush()
+            tour_count += 1
 
             for i, stop_name in enumerate(t_data["stops"]):
                 prop = db.query(Property).filter(Property.name_en == stop_name).first()
@@ -193,7 +236,9 @@ def seed():
                         duration_minutes=90,
                     ))
 
-        # Промокоды
+        print(f"✅ Tours: {tour_count}")
+
+        # ==================== ПРОМОКОДЫ ====================
         promos = [
             {"code": "GUIDEME", "discount_percent": 10, "description": "10% off your tour"},
             {"code": "WELCOME", "discount_percent": 15, "description": "15% off for new users"},
@@ -208,7 +253,8 @@ def seed():
             ))
 
         db.commit()
-        print(f"✅ Seeded: {len(region_map)} regions, {sum(len(v) for v in PROPERTIES_BY_REGION.values())} properties, {len(TOURS_DATA)} tours")
+        print(
+            f"✅ Seeded: {len(region_map)} regions, {property_count} properties, {tour_count} tours, {photo_count} photos")
 
     except Exception as e:
         db.rollback()
