@@ -113,3 +113,12 @@ def update_booking_status(
         br.property = BookingPropertyBrief.model_validate(prop)
 
     return DataResponse(data=br, message=f"Status updated to {status}")
+
+
+@router.get("/my", response_model=DataResponse[list[BookingRequestResponse]])
+def get_my_requests_alias(
+        user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Мои запросы (алиас для /)."""
+    return get_my_requests(user, db)

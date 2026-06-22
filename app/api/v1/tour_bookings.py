@@ -20,24 +20,39 @@ def book_tour(
     db: Session = Depends(get_db),
 ):
     """Забронировать тур."""
+    # 1. Проверяем что тур существует
     tour = db.query(Tour).filter(Tour.id == tour_id, Tour.is_active == True).first()
     if not tour:
         raise HTTPException(status_code=404, detail="Tour not found")
 
-    # Базовая цена (можно улучшить логику)
+    # 2. Проверяем нет ли уже активного тура у пользователя
+    existing_booking = db.query(TourBooking).filter(
+        TourBooking.user_id == user.id,
+        TourBooking.status.in_(["pending", "confirmed"]),
+        TourBooking.is_active == True
+    ).first()
+
+    if existing_booking:
+        raise HTTPException(
+            status_code=400,
+            detail="You already have an active tour. Complete or cancel it first."
+        )
+
+    # 3. Расчет цены
     base_price = tour.avg_total_cost if tour.avg_total_cost > 0 else 500000
     total = base_price * request.duration_days
 
-    # Промокод (простая логика)
+    # 4. Промокод
     discount = 0.0
     if request.promo_code:
         if request.promo_code.upper() == "GUIDEME":
-            discount = total * 0.1  # 10% скидка
+            discount = total * 0.1
         elif request.promo_code.upper() == "WELCOME":
-            discount = total * 0.15  # 15% скидка
+            discount = total * 0.15
 
     total_price = total - discount
 
+    # 5. Создаем бронь со статусом "confirmed"
     booking = TourBooking(
         tour_id=tour_id,
         user_id=user.id,
@@ -46,9 +61,13 @@ def book_tour(
         total_price=total_price,
         discount_applied=discount,
         promo_code=request.promo_code,
+        status="confirmed",
     )
     db.add(booking)
     db.commit()
     db.refresh(booking)
 
-    return DataResponse(data=TourBookingResponse.model_validate(booking), message="Tour booked successfully")
+    return DataResponse(
+        data=TourBookingResponse.model_validate(booking),
+        message="Tour started successfully!"
+    )
