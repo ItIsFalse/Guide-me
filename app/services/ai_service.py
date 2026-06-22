@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -27,33 +28,25 @@ def search_properties(db: Session, entities: dict, limit: int = 10) -> list[dict
         Property.moderation_status == "approved",
     )
 
-    # Фильтр по городу
     if entities.get("city"):
-
         region = db.query(Region).filter(Region.name_en == entities["city"]).first()
         if region:
             print(f"Found region: {region.name_en}, id={region.id}")
             query = query.filter(Property.region_id == region.id)
         else:
-
-            # Попробуем поискать по-другому
             region = db.query(Region).filter(Region.name_ru.ilike(f"%{entities['city']}%")).first()
             if region:
                 print(f"Found by Russian name: {region.name_en}")
                 query = query.filter(Property.region_id == region.id)
 
-    # Фильтр по типу
     if entities.get("type"):
         query = query.filter(Property.property_type == entities["type"])
 
-    # Фильтр по звёздам
     if entities.get("stars"):
         query = query.filter(Property.stars >= entities["stars"])
 
-    # Сохраняем запрос без тегов для fallback
     base_query = query
 
-    # Фильтр по тегам (мягкий, ИЛИ)
     if entities.get("tags"):
         tag_filters = []
         for tag in entities["tags"]:
@@ -63,7 +56,6 @@ def search_properties(db: Session, entities: dict, limit: int = 10) -> list[dict
 
     results = query.limit(limit * 2).all()
 
-    # Если с тегами ничего не нашли — ищем без тегов
     if not results and entities.get("tags"):
         results = base_query.limit(limit * 2).all()
 
@@ -77,14 +69,11 @@ def search_properties(db: Session, entities: dict, limit: int = 10) -> list[dict
         )
         price_value = min_price[0] if min_price else 0
 
-        # Фильтр по бюджету
         if entities.get("budget") and price_value > entities["budget"]:
             continue
 
         region = db.query(Region).filter(Region.id == prop.region_id).first()
         price_text = f"{price_value:,.0f} UZS" if price_value > 0 else "Free"
-
-        # Собираем теги
         tags = [t.tag for t in prop.tags] if prop.tags else []
 
         suggestions.append({
@@ -119,8 +108,6 @@ def search_properties(db: Session, entities: dict, limit: int = 10) -> list[dict
 
 def build_rich_prompt(message: str, suggestions: list[dict], weather: dict | None, lang: str) -> str:
     """Строит подробный промпт для Groq."""
-
-    # Системный промпт в зависимости от языка
     system_prompts = {
         "ru": "Ты — дружелюбный AI-гид по Узбекистану. Помогаешь туристам находить отели, музеи, рестораны. Отвечай кратко, полезно, на русском языке.",
         "uz": "Siz O'zbekiston bo'yicha do'stona AI-gidsiz. Sayyohlarga mehmonxonalar, muzeylar, restoranlar topishda yordam berasiz. Qisqa, foydali va o'zbek tilida javob bering.",
@@ -129,7 +116,6 @@ def build_rich_prompt(message: str, suggestions: list[dict], weather: dict | Non
 
     system = system_prompts.get(lang, system_prompts["en"])
 
-    # Контекст из найденных мест
     context = ""
     if suggestions:
         context = "Available places from database:\n"
@@ -145,12 +131,10 @@ def build_rich_prompt(message: str, suggestions: list[dict], weather: dict | Non
     else:
         context = "No places found in database matching this query."
 
-    # Погода
     weather_str = ""
     if weather:
         weather_str = f"\nCurrent weather: {weather['temp']}°C, {weather['description']}, humidity {weather['humidity']}%"
 
-    # Полный промпт
     prompt = f"""{system}
 
 {context}
@@ -171,31 +155,72 @@ Answer:"""
     return prompt
 
 
-async def ask_groq(prompt: str, image_base64: str | None = None) -> str:
-    """Отправляет запрос к Groq API."""
+async def ask_groq(prompt: str, image_base64: str | None = None, max_retries: int = 3) -> str:
+    """Отправляет запрос к Groq API с повторными попытками при ошибках."""
     if not settings.GROQ_API_KEY:
         return "AI service is not configured. Please add GROQ_API_KEY."
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {settings.GROQ_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": settings.GROQ_MODEL,
-                    "messages": [{"role": "user", "content": build_message_content(prompt, image_base64)}],
-                    "temperature": 0.7,
-                    "max_tokens": 500,
-                },
-                timeout=30.0,
-            )
-            data = response.json()
-            return data["choices"][0]["message"]["content"].strip()
-    except Exception as e:
-        return f"Sorry, AI is temporarily unavailable. Please try later. Error: {str(e)[:100]}"
+    if not settings.GROQ_API_KEY.startswith("gsk_"):
+        return "AI API key is invalid or has been revoked. Please update the GROQ_API_KEY."
+
+    last_error = None
+
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": settings.GROQ_MODEL,
+                        "messages": [{"role": "user", "content": build_message_content(prompt, image_base64)}],
+                        "temperature": 0.7,
+                        "max_tokens": 500,
+                    },
+                )
+
+                if response.status_code == 401:
+                    return "AI API key is invalid or expired. Please update the GROQ_API_KEY."
+                elif response.status_code == 429:
+                    return "AI service rate limit exceeded. Please try again in a few minutes."
+                elif response.status_code == 500:
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(2 ** attempt)
+                        continue
+                    return "AI service is temporarily unavailable. Please try again later."
+                elif response.status_code != 200:
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(1)
+                        continue
+                    return f"AI service error (status {response.status_code}). Please try again later."
+
+                data = response.json()
+                return data["choices"][0]["message"]["content"].strip()
+
+        except httpx.TimeoutException:
+            last_error = "Timeout"
+            if attempt < max_retries - 1:
+                await asyncio.sleep(1)
+                continue
+            return "AI service is taking too long. Please try again."
+        except httpx.ConnectError:
+            last_error = "Connection error"
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2)
+                continue
+            return "Cannot connect to AI service. Please check your internet connection."
+        except Exception as e:
+            last_error = str(e)
+            if attempt < max_retries - 1:
+                await asyncio.sleep(1)
+                continue
+            return f"AI error: {str(e)[:100]}"
+
+    return f"AI service failed after {max_retries} attempts. Last error: {last_error}"
+
 
 def generate_simple_reply(message: str, suggestions: list[dict], weather: dict | None, lang: str) -> str:
     """Fallback если Groq недоступен."""
