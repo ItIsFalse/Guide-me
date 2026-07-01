@@ -1,0 +1,80 @@
+[10:50:18] START: 🚀 Начинаем тестирование API...
+[10:50:18] TEST: 🔄 POST /api/v1/auth/login - Логин админа
+[10:50:21] PASS: ✅ POST /api/v1/auth/login → 200 (OK)
+[10:50:21] PASS: ✅ Токен получен: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[10:50:21] TEST: 📋 Проверка публичных эндпоинтов...
+[10:50:21] TEST: 🔄 GET / - Root
+[10:50:22] PASS: ✅ GET / → 200 (OK)
+[10:50:22] TEST: 🔄 GET /api/v1/regions/ - Список регионов
+[10:50:23] PASS: ✅ GET /api/v1/regions/ → 200 (OK)
+[10:50:23] TEST: 🔄 GET /api/v1/regions/1 - Регион по ID
+[10:50:24] PASS: ✅ GET /api/v1/regions/1 → 200 (OK)
+[10:50:24] TEST: 🔄 GET /api/v1/properties/ - Список свойств
+[10:50:25] PASS: ✅ GET /api/v1/properties/ → 200 (OK)
+[10:50:25] TEST: 🔄 GET /api/v1/properties/1 - Свойство по ID
+[10:50:27] PASS: ✅ GET /api/v1/properties/1 → 200 (OK)
+[10:50:27] TEST: 🔄 GET /api/v1/properties/1/nearby - Ближайшие свойства
+[10:50:28] PASS: ✅ GET /api/v1/properties/1/nearby → 200 (OK)
+[10:50:28] TEST: 🔄 GET /api/v1/properties/1/hotels - Отели свойства
+[10:50:29] PASS: ✅ GET /api/v1/properties/1/hotels → 200 (OK)
+[10:50:29] TEST: 🔄 GET /api/v1/tours/ - Список туров
+[10:50:30] PASS: ✅ GET /api/v1/tours/ → 200 (OK)
+[10:50:30] TEST: 🔄 GET /api/v1/tours/1 - Тур по ID
+[10:50:31] PASS: ✅ GET /api/v1/tours/1 → 200 (OK)
+[10:50:31] TEST: 🔄 GET /api/v1/tours/1/navigation - Навигация тура
+[10:50:33] PASS: ✅ GET /api/v1/tours/1/navigation → 200 (OK)
+[10:50:33] TEST: 🔄 GET /api/v1/tours/averages/regions - Средние траты по регионам
+[10:50:33] PASS: ✅ GET /api/v1/tours/averages/regions → 200 (OK)
+[10:50:33] TEST: 🔄 GET /api/v1/reviews/property/1 - Отзывы свойства
+[10:50:35] PASS: ✅ GET /api/v1/reviews/property/1 → 200 (OK)
+[10:50:35] TEST: 🔄 GET /api/v1/exchange/ - Курсы валют
+[10:50:37] PASS: ✅ GET /api/v1/exchange/ → 200 (OK)
+[10:50:37] TEST: 🔄 GET /api/v1/promo/validate?code=GUIDEME - Проверка промокода
+[10:50:39] FAIL: ❌ GET /api/v1/promo/validate?code=GUIDEME → 405 (ожидался 200)
+[10:50:39] TEST: 🔄 GET /api/v1/photos/property/1 - Фото свойства
+[10:50:40] PASS: ✅ GET /api/v1/photos/property/1 → 200 (OK)
+[10:50:40] TEST: 🔐 Проверка защищённых эндпоинтов (с токеном)...
+[10:50:40] TEST: 🔄 GET /api/v1/auth/me - Профиль пользователя
+[10:50:41] PASS: ✅ GET /api/v1/auth/me → 200 (OK)
+[10:50:41] TEST: 🔄 PUT /api/v1/auth/me - Обновить профиль
+[10:50:42] PASS: ✅ PUT /api/v1/auth/me → 200 (OK)
+[10:50:42] TEST: 🔄 POST /api/v1/auth/change-password - Смена пароля
+[10:50:46] PASS: ✅ POST /api/v1/auth/change-password → 200 (OK)
+[10:50:46] TEST: 🔄 POST /api/v1/auth/refresh - Обновление токена (тест)
+[10:50:47] FAIL: ❌ POST /api/v1/auth/refresh → 401 (ожидался 200)
+[10:50:47] INFO:    🔐 Требуется авторизация (токен не передан или невалидный)
+[10:50:47] TEST: 🔄 GET /api/v1/booking/ - Мои брони
+[10:50:49] PASS: ✅ GET /api/v1/booking/ → 200 (OK)
+[10:50:49] TEST: 🔄 GET /api/v1/booking/my - Мои брони (алиас)
+[10:50:50] PASS: ✅ GET /api/v1/booking/my → 200 (OK)
+[10:50:50] TEST: 🔄 GET /api/v1/saved/ - Сохранённое
+[10:50:51] PASS: ✅ GET /api/v1/saved/ → 200 (OK)
+[10:50:51] TEST: 🔄 POST /api/v1/saved/?item_type=property&item_id=1 - Сохранить свойство (тест)
+[10:50:52] FAIL: ❌ POST /api/v1/saved/?item_type=property&item_id=1 → 200 (ожидался 400)
+[10:50:52] TEST: 🔄 GET /api/v1/reviews/my - Мои отзывы
+[10:50:53] PASS: ✅ GET /api/v1/reviews/my → 200 (OK)
+[10:50:53] TEST: 🔄 GET /api/v1/users/me - Профиль (users/me)
+[10:50:54] PASS: ✅ GET /api/v1/users/me → 200 (OK)
+[10:50:54] TEST: 🔄 GET /api/v1/users/me/stats - Статистика пользователя
+[10:50:55] PASS: ✅ GET /api/v1/users/me/stats → 200 (OK)
+[10:50:55] TEST: 🔄 GET /api/v1/notifications/ - Уведомления
+[10:50:56] PASS: ✅ GET /api/v1/notifications/ → 200 (OK)
+[10:50:56] TEST: 🔄 POST /api/v1/tours/expenses - Добавить расходы
+[10:50:57] FAIL: ❌ POST /api/v1/tours/expenses → 422 (ожидался 200)
+[10:50:57] TEST: 🔄 POST /api/v1/tours/1/book - Забронировать тур
+[10:50:59] PASS: ✅ POST /api/v1/tours/1/book → 200 (OK)
+[10:50:59] TEST: 🔄 GET /api/v1/tours/active - Активный тур
+[10:50:59] FAIL: ❌ GET /api/v1/tours/active → 422 (ожидался 200)
+[10:50:59] TEST: 🧪 Проверка специальных эндпоинтов...
+[10:50:59] TEST: 🔄 POST /api/v1/ai/ - AI Chat (с тестовым сообщением)
+[10:51:02] PASS: ✅ POST /api/v1/ai/ → 200 (OK)
+[10:51:02] TEST: 🔄 POST /api/v1/booking/ - Создание брони
+[10:51:03] PASS: ✅ POST /api/v1/booking/ → 200 (OK)
+[10:51:03] TEST: 🔄 POST /api/v1/reviews/ - Создание отзыва
+[10:51:05] PASS: ✅ POST /api/v1/reviews/ → 200 (OK)
+[10:51:05] TEST: 🔄 POST /api/v1/chat/ - Отправить сообщение
+[10:51:06] PASS: ✅ POST /api/v1/chat/ → 200 (OK)
+[10:51:06] TEST: 🔄 POST /api/v1/navigation/route - Построить маршрут
+[10:51:07] PASS: ✅ POST /api/v1/navigation/route → 200 (OK)
+[10:51:07] DONE: ✅ Тестирование завершено!
+[10:51:07] INFO: 📊 Всего проверок: 77

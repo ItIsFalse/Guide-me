@@ -1,8 +1,3 @@
-"""
-Обновляет курсы валют с API Центробанка Узбекистана (cbu.uz).
-Запуск: python -m scripts.update_exchange_rates
-Можно поставить на cron раз в день.
-"""
 import sys
 sys.path.insert(0, ".")
 

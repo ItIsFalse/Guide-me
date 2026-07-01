@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload  # <--- добавили joinedload
 from sqlalchemy import func
 from app.models.tour import Tour, TourStop, UserTourExpense
 from app.models.region import Region
@@ -25,7 +25,10 @@ def get_tours(
 
 
 def get_tour_by_id(db: Session, tour_id: int) -> Tour | None:
-    return db.query(Tour).filter(Tour.id == tour_id, Tour.is_active == True).first()
+    return db.query(Tour).filter(
+        Tour.id == tour_id,
+        Tour.is_active == True
+    ).options(joinedload(Tour.stops)).first()   # <--- ИСПРАВЛЕНО
 
 
 def create_tour(db: Session, user: User, data: TourCreateRequest) -> Tour:
